@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileText, Save, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 
 const schema = z.object({
@@ -60,28 +60,81 @@ export default function EditMedicalRecordPage() {
     setLoading(false);
   };
 
-  if (fetching) return <div className="flex items-center justify-center py-20"><Loader2 className="size-8 animate-spin text-primary" /></div>;
+  if (fetching) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
+        <Loader2 className="size-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading clinical data...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <PageHeader title="Edit Medical Record" description="Update clinical information" breadcrumbs={[{ label: "Medical Records", href: "/medical-records" }, { label: "Edit" }]} />
-      <Card className="max-w-2xl">
-        <CardHeader><CardTitle>Clinical Information</CardTitle></CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2"><Label htmlFor="symptoms">Symptoms <span className="text-destructive">*</span></Label><Textarea id="symptoms" rows={2} {...register("symptoms")} />{errors.symptoms && <p className="text-sm text-destructive">{errors.symptoms.message}</p>}</div>
-              <div className="space-y-2"><Label htmlFor="diagnosis">Diagnosis <span className="text-destructive">*</span></Label><Textarea id="diagnosis" rows={2} {...register("diagnosis")} />{errors.diagnosis && <p className="text-sm text-destructive">{errors.diagnosis.message}</p>}</div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-4 mb-2">
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
+          <ArrowLeft className="size-5" />
+        </Button>
+        <PageHeader 
+          title="Edit Medical Record" 
+          description="Update clinical information, diagnosis, and treatment plan" 
+          breadcrumbs={[{ label: "Medical Records", href: "/medical-records" }, { label: "Edit" }]} 
+          className="m-0 p-0"
+        />
+      </div>
+
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+          <CardTitle className="text-lg font-bold flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary"><FileText className="size-5" /></div>
+            Clinical Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <Label htmlFor="symptoms" className="font-semibold text-foreground/80">Symptoms <span className="text-destructive">*</span></Label>
+                <Textarea id="symptoms" rows={3} {...register("symptoms")} className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base" />
+                {errors.symptoms && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.symptoms.message}</p>}
+              </div>
+              <div className="space-y-2.5">
+                <Label htmlFor="diagnosis" className="font-semibold text-foreground/80">Diagnosis <span className="text-destructive">*</span></Label>
+                <Textarea id="diagnosis" rows={3} {...register("diagnosis")} className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base" />
+                {errors.diagnosis && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.diagnosis.message}</p>}
+              </div>
             </div>
-            <div className="space-y-2"><Label htmlFor="treatment">Treatment <span className="text-destructive">*</span></Label><Textarea id="treatment" rows={2} {...register("treatment")} />{errors.treatment && <p className="text-sm text-destructive">{errors.treatment.message}</p>}</div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2"><Label htmlFor="allergies">Allergies</Label><Input id="allergies" {...register("allergies")} /></div>
-              <div className="space-y-2"><Label htmlFor="followUpDate">Follow-up Date</Label><Input id="followUpDate" type="date" {...register("followUpDate")} /></div>
+            
+            <div className="space-y-2.5">
+              <Label htmlFor="treatment" className="font-semibold text-foreground/80">Treatment Plan <span className="text-destructive">*</span></Label>
+              <Textarea id="treatment" rows={3} {...register("treatment")} className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base" />
+              {errors.treatment && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.treatment.message}</p>}
             </div>
-            <div className="space-y-2"><Label htmlFor="doctorNotes">Doctor Notes</Label><Textarea id="doctorNotes" rows={2} {...register("doctorNotes")} /></div>
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading}>{loading && <Loader2 className="mr-2 size-4 animate-spin" />}Update Record</Button>
-              <Button type="button" variant="outline" onClick={() => router.push(`/medical-records/${params.id}`)}>Cancel</Button>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <Label htmlFor="allergies" className="font-semibold text-foreground/80">Allergies</Label>
+                <Input id="allergies" {...register("allergies")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+              </div>
+              <div className="space-y-2.5">
+                <Label htmlFor="followUpDate" className="font-semibold text-foreground/80">Follow-up Date</Label>
+                <Input id="followUpDate" type="date" {...register("followUpDate")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              <Label htmlFor="doctorNotes" className="font-semibold text-foreground/80">Confidential Doctor Notes</Label>
+              <Textarea id="doctorNotes" rows={3} {...register("doctorNotes")} className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base" placeholder="Internal notes not explicitly shown to patients..." />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/40 mt-6">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12 gradient-primary border-0 rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 px-8 text-base">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Save className="mr-2 size-5" />}
+                Save Updates
+              </Button>
+              <Button type="button" variant="outline" onClick={() => router.push(`/medical-records/${params.id}`)} className="w-full sm:w-auto h-12 rounded-xl font-bold">
+                Cancel
+              </Button>
             </div>
           </form>
         </CardContent>

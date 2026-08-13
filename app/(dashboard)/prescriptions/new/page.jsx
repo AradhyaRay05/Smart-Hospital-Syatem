@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FormSelect } from "@/components/shared/form-select";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Pill, FileText, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 
 const itemSchema = z.object({
@@ -67,61 +67,131 @@ export default function NewPrescriptionPage() {
   };
 
   return (
-    <div>
-      <PageHeader title="Create Prescription" description="Prescribe medicines for a patient" breadcrumbs={[{ label: "Prescriptions", href: "/prescriptions" }, { label: "Create" }]} />
-      <Card className="max-w-3xl">
-        <CardHeader><CardTitle>Prescription Details</CardTitle></CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label>Medical Record <span className="text-destructive">*</span></Label>
-              <FormSelect
-                options={records.map(r => ({ value: r.id, label: `${r.patient.firstName} ${r.patient.lastName} - ${r.diagnosis || "No diagnosis"} (${format(new Date(r.createdAt), "MMM dd")})` }))}
-                onValueChange={(val) => setValue("medicalRecordId", val)}
-                placeholder="Select medical record"
-              />
-              {errors.medicalRecordId && <p className="text-sm text-destructive">{errors.medicalRecordId.message}</p>}
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto space-y-6">
+      <PageHeader 
+        title="Create Prescription" 
+        description="Prescribe medications and formulate instructions for a patient visit" 
+        breadcrumbs={[{ label: "Prescriptions", href: "/prescriptions" }, { label: "Create" }]} 
+      />
+      
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+          <CardTitle className="text-lg font-bold flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary"><Pill className="size-5" /></div>
+            Prescription Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            
+            {/* Context Section */}
+            <div className="space-y-6 rounded-2xl border border-border/50 bg-background p-6">
+              <div className="flex items-center gap-2 mb-2 text-muted-foreground font-bold uppercase tracking-wider text-sm border-b border-border/50 pb-2">
+                <FileText className="size-4" /> Clinical Link
+              </div>
+              
+              <div className="space-y-2.5">
+                <Label className="font-semibold text-foreground/80">Linked Medical Record <span className="text-destructive">*</span></Label>
+                <FormSelect
+                  options={records.map(r => ({ 
+                    value: r.id, 
+                    label: `${r.patient.firstName} ${r.patient.lastName} - ${r.diagnosis || "No diagnosis"} (${format(new Date(r.createdAt), "MMM dd, yyyy")})` 
+                  }))}
+                  onValueChange={(val) => setValue("medicalRecordId", val)}
+                  placeholder="Select the corresponding medical record"
+                />
+                {errors.medicalRecordId && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.medicalRecordId.message}</p>}
+              </div>
+
+              <div className="space-y-2.5">
+                <Label htmlFor="instructions" className="font-semibold text-foreground/80">General Advice / Instructions</Label>
+                <Textarea 
+                  id="instructions" 
+                  rows={3} 
+                  placeholder="General lifestyle advice or overarching prescription instructions..." 
+                  {...register("instructions")} 
+                  className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="instructions">General Instructions</Label>
-              <Textarea id="instructions" rows={2} placeholder="General prescription instructions" {...register("instructions")} />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label>Medicines <span className="text-destructive">*</span></Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ medicineName: "", dosage: "", frequency: "", duration: "", instructions: "" })}>
-                  <Plus className="mr-1 size-3" /> Add Medicine
+            {/* Dynamic Medicines Array */}
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-2">
+                <Label className="font-bold text-lg text-foreground flex items-center gap-2">
+                  <Pill className="size-5 text-primary" /> Medications List <span className="text-destructive">*</span>
+                </Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl h-10 font-bold hover:bg-primary/5 hover:text-primary transition-colors border-primary/20"
+                  onClick={() => append({ medicineName: "", dosage: "", frequency: "", duration: "", instructions: "" })}
+                >
+                  <Plus className="mr-1.5 size-4" /> Add Medication
                 </Button>
               </div>
 
-              {errors.items && <p className="text-sm text-destructive">{errors.items.message}</p>}
+              {errors.items?.root && <p className="text-sm font-medium text-destructive">{errors.items.root.message}</p>}
 
-              {fields.map((field, index) => (
-                <div key={field.id} className="rounded-lg border p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Medicine {index + 1}</p>
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="relative rounded-2xl border-2 border-border/40 bg-muted/10 p-5 sm:p-6 transition-all hover:border-primary/30 hover:shadow-sm">
+                    <div className="absolute -top-3 -left-3 size-8 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-sm shadow-md">
+                      {index + 1}
+                    </div>
+                    
                     {fields.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(index)}>
-                        <Trash2 className="size-4 text-destructive" />
+                      <Button 
+                        type="button" 
+                        variant="destructive" 
+                        size="icon" 
+                        className="absolute -top-3 -right-3 size-8 rounded-xl shadow-md h-8 w-8"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="size-4" />
                       </Button>
                     )}
+                    
+                    <div className="grid gap-5 sm:grid-cols-2 mt-2">
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Medicine Name</Label>
+                        <Input placeholder="e.g., Amoxicillin 500mg, Paracetamol" {...register(`items.${index}.medicineName`)} className="h-12 rounded-xl bg-background font-bold text-base focus-visible:ring-primary/30" />
+                        {errors.items?.[index]?.medicineName && <p className="text-xs font-medium text-destructive">{errors.items[index].medicineName.message}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Dosage</Label>
+                        <Input placeholder="e.g., 1 tablet, 10ml" {...register(`items.${index}.dosage`)} className="h-11 rounded-xl bg-background focus-visible:ring-primary/30" />
+                        {errors.items?.[index]?.dosage && <p className="text-xs font-medium text-destructive">{errors.items[index].dosage.message}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Frequency</Label>
+                        <Input placeholder="e.g., 3 times a day (TDS)" {...register(`items.${index}.frequency`)} className="h-11 rounded-xl bg-background focus-visible:ring-primary/30" />
+                        {errors.items?.[index]?.frequency && <p className="text-xs font-medium text-destructive">{errors.items[index].frequency.message}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Duration</Label>
+                        <Input placeholder="e.g., 7 days, 2 weeks" {...register(`items.${index}.duration`)} className="h-11 rounded-xl bg-background focus-visible:ring-primary/30" />
+                        {errors.items?.[index]?.duration && <p className="text-xs font-medium text-destructive">{errors.items[index].duration.message}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Specific Instructions</Label>
+                        <Input placeholder="e.g., Take after meals" {...register(`items.${index}.instructions`)} className="h-11 rounded-xl bg-background focus-visible:ring-primary/30" />
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1"><Label className="text-xs">Medicine Name</Label><Input placeholder="e.g., Amoxicillin" {...register(`items.${index}.medicineName`)} />{errors.items?.[index]?.medicineName && <p className="text-xs text-destructive">{errors.items[index].medicineName.message}</p>}</div>
-                    <div className="space-y-1"><Label className="text-xs">Dosage</Label><Input placeholder="e.g., 500mg" {...register(`items.${index}.dosage`)} />{errors.items?.[index]?.dosage && <p className="text-xs text-destructive">{errors.items[index].dosage.message}</p>}</div>
-                    <div className="space-y-1"><Label className="text-xs">Frequency</Label><Input placeholder="e.g., 3 times a day" {...register(`items.${index}.frequency`)} />{errors.items?.[index]?.frequency && <p className="text-xs text-destructive">{errors.items[index].frequency.message}</p>}</div>
-                    <div className="space-y-1"><Label className="text-xs">Duration</Label><Input placeholder="e.g., 7 days" {...register(`items.${index}.duration`)} />{errors.items?.[index]?.duration && <p className="text-xs text-destructive">{errors.items[index].duration.message}</p>}</div>
-                  </div>
-                  <div className="space-y-1"><Label className="text-xs">Instructions</Label><Input placeholder="e.g., Take after meals" {...register(`items.${index}.instructions`)} /></div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading}>{loading && <Loader2 className="mr-2 size-4 animate-spin" />}Create Prescription</Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/prescriptions")}>Cancel</Button>
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/40 mt-6">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12 gradient-primary border-0 rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 px-8 text-base">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <CheckCircle2 className="mr-2 size-5" />}
+                Generate Prescription
+              </Button>
+              <Button type="button" variant="outline" className="w-full sm:w-auto h-12 rounded-xl font-bold" onClick={() => router.push("/prescriptions")}>
+                Cancel
+              </Button>
             </div>
           </form>
         </CardContent>

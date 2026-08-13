@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Building2, Save } from "lucide-react";
 
 export default function EditDepartmentPage() {
   const router = useRouter();
@@ -75,76 +75,89 @@ export default function EditDepartmentPage() {
 
   if (fetching) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-8 animate-spin text-primary" />
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
+        <Loader2 className="size-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading department...</p>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl mx-auto">
       <PageHeader
         title="Edit Department"
-        description="Update department information"
+        description="Update department information and settings"
         breadcrumbs={[
           { label: "Departments", href: "/departments" },
           { label: "Edit Department" },
         ]}
       />
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Department Information</CardTitle>
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden mt-6">
+        <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+          <CardTitle className="text-lg font-bold flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary">
+              <Building2 className="size-5" />
+            </div>
+            Department Details
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 sm:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">
+            <div className="space-y-2.5">
+              <Label htmlFor="name" className="font-semibold text-foreground/80">
                 Department Name <span className="text-destructive">*</span>
               </Label>
-              <Input id="name" {...register("name")} />
+              <Input 
+                id="name" 
+                {...register("name")} 
+                className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30 text-base"
+              />
               {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+                <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.name.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="description" className="font-semibold text-foreground/80">Description</Label>
               <Textarea
                 id="description"
-                rows={3}
+                rows={4}
                 {...register("description")}
+                className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none text-base"
+                placeholder="Brief description of the department's specialties..."
               />
               {errors.description && (
-                <p className="text-sm text-destructive">{errors.description.message}</p>
+                <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.description.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label>Status</Label>
+            <div className="space-y-2.5">
+              <Label className="font-semibold text-foreground/80">Status</Label>
               <Select
                 onValueChange={(val) => setValue("status", val)}
                 defaultValue="ACTIVE"
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30 font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                <SelectContent className="rounded-xl shadow-lg">
+                  <SelectItem value="ACTIVE" className="font-medium">Active</SelectItem>
+                  <SelectItem value="INACTIVE" className="font-medium">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/40 mt-6">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12 gradient-primary border-0 rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 px-8">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Save className="mr-2 size-5" />}
                 Update Department
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push("/departments")}
+                className="w-full sm:w-auto h-12 rounded-xl font-bold"
               >
                 Cancel
               </Button>

@@ -12,25 +12,38 @@ export default function DashboardLayout({ children, role, user }) {
 
   return (
     <RoleProvider role={role} user={user}>
-      <div className="flex h-screen overflow-hidden">
-        <div className="hidden lg:block">
+      <div className="flex h-screen overflow-hidden bg-background">
+        
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block z-20 shadow-soft">
           <Sidebar
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
           />
         </div>
 
+        {/* Mobile Sidebar */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="w-[260px] p-0">
+          <SheetContent side="left" className="w-[280px] p-0 border-r-0 shadow-2xl">
             <Sidebar collapsed={false} onToggle={() => {}} />
           </SheetContent>
         </Sheet>
 
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <TopNav onMenuToggle={() => setMobileOpen(true)} />
-          <main className="flex-1 overflow-y-auto">
-            <div className="container mx-auto p-6">{children}</div>
+        {/* Main Content Area */}
+        <div className="flex flex-1 flex-col overflow-hidden relative">
+          
+          {/* Top Navigation */}
+          <div className="z-10">
+            <TopNav onMenuToggle={() => setMobileOpen(true)} />
+          </div>
+          
+          {/* Scrollable Main View */}
+          <main className="flex-1 overflow-y-auto scroll-smooth">
+            <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-[1600px] animate-in fade-in duration-500">
+              {children}
+            </div>
           </main>
+          
         </div>
       </div>
     </RoleProvider>

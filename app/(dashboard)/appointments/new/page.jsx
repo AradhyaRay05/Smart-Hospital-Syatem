@@ -138,7 +138,7 @@ export default function NewAppointmentPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <PageHeader
         title="Book Appointment"
         description="Complete the booking in 3 simple steps"
@@ -148,7 +148,7 @@ export default function NewAppointmentPage() {
         ]}
       />
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-4">
         {STEPS.map((item) => {
           const Icon = item.icon;
           const active = step === item.id;
@@ -156,17 +156,18 @@ export default function NewAppointmentPage() {
           return (
             <div
               key={item.id}
-              className={`rounded-xl border p-3 transition ${
-                active ? "border-primary bg-primary/5 shadow-primary" : done ? "border-green-200 bg-green-50" : "bg-card"
+              className={`rounded-2xl border p-4 transition-all duration-300 relative overflow-hidden ${
+                active ? "border-primary bg-primary/5 shadow-md scale-[1.02]" : done ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20" : "bg-card border-border/40 opacity-70"
               }`}
             >
-              <div className="flex items-center gap-2">
-                <div className={`rounded-lg p-2 ${active ? "bg-primary text-white" : done ? "bg-green-600 text-white" : "bg-muted"}`}>
-                  {done ? <CheckCircle2 className="size-4" /> : <Icon className="size-4" />}
+              {active && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent" />}
+              <div className="flex items-center gap-3">
+                <div className={`rounded-xl p-2.5 transition-colors ${active ? "bg-primary text-white shadow-lg shadow-primary/30" : done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}>
+                  {done ? <CheckCircle2 className="size-5" /> : <Icon className="size-5" />}
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Step {item.id}</p>
-                  <p className="text-sm font-semibold">{item.title}</p>
+                  <p className={`text-xs font-bold uppercase tracking-wider ${active ? "text-primary" : "text-muted-foreground"}`}>Step {item.id}</p>
+                  <p className={`text-sm font-extrabold ${active ? "text-foreground" : "text-muted-foreground"}`}>{item.title}</p>
                 </div>
               </div>
             </div>
@@ -174,203 +175,232 @@ export default function NewAppointmentPage() {
         })}
       </div>
 
-      <Card className="shadow-card">
-        <CardContent className="space-y-6 p-6">
-          {step === 1 && (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-lg font-semibold">Patient Information</h2>
-                <p className="text-sm text-muted-foreground">Who is this appointment for?</p>
-              </div>
-
-              {isPatient ? (
-                <div className="rounded-xl border bg-primary/5 p-4">
-                  <p className="font-medium">
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{user?.email || user?.phone}</p>
-                  <Badge className="mt-2" variant="secondary">Booking for yourself</Badge>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label>Select Patient *</Label>
-                  <FormSelect
-                    options={patients.map((p) => ({
-                      value: p.id,
-                      label: `${p.firstName} ${p.lastName} • ${p.phone || "No phone"}`,
-                    }))}
-                    value={form.patientId}
-                    onValueChange={(v) => setField("patientId", v)}
-                    placeholder="Choose patient"
-                  />
-                  {errors.patientId && <p className="text-xs text-destructive">{errors.patientId}</p>}
-                  {selectedPatient && (
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">
-                      {selectedPatient.gender} • DOB {new Date(selectedPatient.dateOfBirth).toLocaleDateString()}
-                      {selectedPatient.bloodGroup ? ` • ${selectedPatient.bloodGroup}` : ""}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-end justify-between gap-3">
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+        <CardContent className="p-8">
+          <div className="min-h-[350px] animate-in fade-in slide-in-from-right-4 duration-300">
+            {step === 1 && (
+              <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold">Choose Doctor</h2>
-                  <p className="text-sm text-muted-foreground">Filter by department and pick a specialist</p>
+                  <h2 className="text-2xl font-extrabold tracking-tight">Patient Information</h2>
+                  <p className="text-muted-foreground font-medium mt-1">Who is this appointment for?</p>
                 </div>
-                <div className="w-full max-w-xs space-y-2">
-                  <Label>Department</Label>
-                  <FormSelect
-                    options={[{ value: "all", label: "All departments" }, ...departments]}
-                    value={deptFilter}
-                    onValueChange={setDeptFilter}
-                    placeholder="All departments"
-                  />
-                </div>
-              </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {filteredDoctors.map((doctor) => {
-                  const selected = form.doctorId === doctor.id;
-                  return (
-                    <button
-                      key={doctor.id}
-                      type="button"
-                      onClick={() => setField("doctorId", doctor.id)}
-                      className={`rounded-xl border p-4 text-left transition hover:shadow-card-hover ${
-                        selected ? "border-primary bg-primary/5 shadow-primary" : "bg-card"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-semibold">
-                            Dr. {doctor.user?.firstName} {doctor.user?.lastName}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {doctor.specialization || "General"} • {doctor.department?.name || "Department"}
-                          </p>
+                {isPatient ? (
+                  <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 shadow-inner flex items-center justify-between">
+                    <div>
+                      <p className="text-xl font-bold text-foreground">
+                        {user?.firstName} {user?.lastName}
+                      </p>
+                      <p className="text-sm font-medium text-muted-foreground mt-1">{user?.email || user?.phone}</p>
+                    </div>
+                    <Badge className="bg-primary hover:bg-primary px-3 py-1 font-bold">Booking for yourself</Badge>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-w-lg">
+                    <Label className="font-bold text-sm">Select Patient <span className="text-destructive">*</span></Label>
+                    <FormSelect
+                      options={patients.map((p) => ({
+                        value: p.id,
+                        label: `${p.firstName} ${p.lastName} • ${p.phone || "No phone"}`,
+                      }))}
+                      value={form.patientId}
+                      onValueChange={(v) => setField("patientId", v)}
+                      placeholder="Search and choose patient..."
+                    />
+                    {errors.patientId && <p className="text-sm font-semibold text-destructive animate-in slide-in-from-top-1">{errors.patientId}</p>}
+                    
+                    {selectedPatient && (
+                      <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mt-4 animate-in fade-in zoom-in-95">
+                        <p className="font-bold text-foreground">{selectedPatient.firstName} {selectedPatient.lastName}</p>
+                        <p className="text-sm font-medium text-muted-foreground mt-1">
+                          {selectedPatient.gender} • DOB {new Date(selectedPatient.dateOfBirth).toLocaleDateString()}
+                          {selectedPatient.bloodGroup ? ` • ${selectedPatient.bloodGroup}` : ""}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-extrabold tracking-tight">Choose Doctor</h2>
+                    <p className="text-muted-foreground font-medium mt-1">Select a specialist for your consultation</p>
+                  </div>
+                  <div className="w-full max-w-xs space-y-2">
+                    <Label className="font-bold text-sm">Filter by Department</Label>
+                    <FormSelect
+                      options={[{ value: "all", label: "All departments" }, ...departments]}
+                      value={deptFilter}
+                      onValueChange={setDeptFilter}
+                      placeholder="All departments"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {filteredDoctors.map((doctor) => {
+                    const selected = form.doctorId === doctor.id;
+                    return (
+                      <button
+                        key={doctor.id}
+                        type="button"
+                        onClick={() => setField("doctorId", doctor.id)}
+                        className={`group rounded-2xl border-2 p-5 text-left transition-all duration-300 hover:shadow-hover hover:-translate-y-1 ${
+                          selected ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20" : "border-border/40 bg-background"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-3 rounded-full transition-colors ${selected ? "bg-primary text-white" : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"}`}>
+                              <Stethoscope className="size-5" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-lg text-foreground">
+                                Dr. {doctor.user?.firstName} {doctor.user?.lastName}
+                              </p>
+                              <p className="text-sm font-semibold text-muted-foreground">
+                                {doctor.specialization || "General"} • {doctor.department?.name || "Department"}
+                              </p>
+                            </div>
+                          </div>
+                          {selected && <CheckCircle2 className="size-6 text-primary animate-in zoom-in" />}
                         </div>
-                        {selected && <CheckCircle2 className="size-5 text-primary" />}
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <Badge variant="secondary">{doctor.available ? "Available" : "Busy"}</Badge>
-                        {doctor.experience != null && <Badge variant="outline">{doctor.experience} yrs</Badge>}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              {errors.doctorId && <p className="text-xs text-destructive">{errors.doctorId}</p>}
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-5">
-              <div>
-                <h2 className="text-lg font-semibold">Date & Time Slot</h2>
-                <p className="text-sm text-muted-foreground">Pick a convenient schedule</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Select Date *</Label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
-                  {availableDates.map((date) => {
-                    const d = new Date(date);
-                    const selected = form.appointmentDate === date;
-                    return (
-                      <button
-                        key={date}
-                        type="button"
-                        onClick={() => setField("appointmentDate", date)}
-                        className={`rounded-xl border px-2 py-3 text-center transition ${
-                          selected ? "border-primary bg-primary text-white" : "hover:border-primary/40"
-                        }`}
-                      >
-                        <p className="text-[11px] opacity-80">
-                          {d.toLocaleDateString("en-GB", { weekday: "short" })}
-                        </p>
-                        <p className="text-sm font-semibold">
-                          {d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
-                        </p>
+                        <div className="mt-4 flex gap-2 ml-14">
+                          <Badge className={doctor.available ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-muted text-muted-foreground"}>
+                            {doctor.available ? "Available" : "Busy"}
+                          </Badge>
+                          {doctor.experience != null && <Badge variant="outline" className="font-semibold">{doctor.experience} yrs exp</Badge>}
+                        </div>
                       </button>
                     );
                   })}
                 </div>
-                {errors.appointmentDate && <p className="text-xs text-destructive">{errors.appointmentDate}</p>}
+                {errors.doctorId && <p className="text-sm font-semibold text-destructive animate-in slide-in-from-top-1">{errors.doctorId}</p>}
               </div>
+            )}
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-1">
-                  <Clock3 className="size-3.5" /> Select Time *
-                </Label>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-                  {TIME_SLOTS.map((slot) => {
-                    const selected = form.appointmentTime === slot;
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => setField("appointmentTime", slot)}
-                        className={`rounded-lg border px-2 py-2 text-sm font-medium transition ${
-                          selected ? "border-primary bg-primary text-white" : "hover:border-primary/40"
-                        }`}
-                      >
-                        {formatSlot(slot)}
-                      </button>
-                    );
-                  })}
+            {step === 3 && (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-extrabold tracking-tight">Date & Time Slot</h2>
+                  <p className="text-muted-foreground font-medium mt-1">Pick a convenient schedule for your visit</p>
                 </div>
-                {errors.appointmentTime && <p className="text-xs text-destructive">{errors.appointmentTime}</p>}
-              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Reason for visit</Label>
-                  <Textarea
-                    rows={3}
-                    placeholder="e.g. Fever, follow-up, consultation"
-                    value={form.reason}
-                    onChange={(e) => setField("reason", e.target.value)}
-                  />
+                <div className="space-y-3">
+                  <Label className="font-bold text-sm">Select Date <span className="text-destructive">*</span></Label>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-7">
+                    {availableDates.map((date) => {
+                      const d = new Date(date);
+                      const selected = form.appointmentDate === date;
+                      return (
+                        <button
+                          key={date}
+                          type="button"
+                          onClick={() => setField("appointmentDate", date)}
+                          className={`rounded-2xl border-2 py-3 px-1 text-center transition-all duration-200 ${
+                            selected ? "border-primary gradient-primary text-white shadow-md transform scale-105" : "border-border/40 bg-background hover:border-primary/40 hover:bg-primary/5"
+                          }`}
+                        >
+                          <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${selected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                            {d.toLocaleDateString("en-GB", { weekday: "short" })}
+                          </p>
+                          <p className="text-lg font-extrabold">
+                            {d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.appointmentDate && <p className="text-sm font-semibold text-destructive">{errors.appointmentDate}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label>Notes</Label>
-                  <Textarea
-                    rows={3}
-                    placeholder="Optional notes for doctor"
-                    value={form.notes}
-                    onChange={(e) => setField("notes", e.target.value)}
-                  />
+
+                <div className="space-y-3">
+                  <Label className="font-bold text-sm flex items-center gap-2">
+                    <Clock3 className="size-4 text-primary" /> Select Time Slot <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                    {TIME_SLOTS.map((slot) => {
+                      const selected = form.appointmentTime === slot;
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setField("appointmentTime", slot)}
+                          className={`rounded-xl border-2 py-2.5 text-sm font-bold transition-all duration-200 ${
+                            selected ? "border-primary gradient-primary text-white shadow-md scale-105" : "border-border/40 bg-background hover:border-primary/40 hover:bg-primary/5 text-foreground"
+                          }`}
+                        >
+                          {formatSlot(slot)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.appointmentTime && <p className="text-sm font-semibold text-destructive">{errors.appointmentTime}</p>}
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="font-bold text-sm">Reason for visit</Label>
+                    <Textarea
+                      rows={3}
+                      placeholder="e.g. Fever, follow-up, consultation"
+                      value={form.reason}
+                      onChange={(e) => setField("reason", e.target.value)}
+                      className="rounded-xl bg-background/50 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-bold text-sm">Additional Notes</Label>
+                    <Textarea
+                      rows={3}
+                      placeholder="Optional notes for the doctor"
+                      value={form.notes}
+                      onChange={(e) => setField("notes", e.target.value)}
+                      className="rounded-xl bg-background/50 resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border-2 border-border/40 bg-muted/30 p-5">
+                  <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Booking Summary</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground font-semibold mb-1">Patient</p>
+                      <p className="font-bold text-sm">{isPatient ? `${user?.firstName || ""} ${user?.lastName || ""}` : `${selectedPatient?.firstName || "-"} ${selectedPatient?.lastName || ""}`}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-semibold mb-1">Doctor</p>
+                      <p className="font-bold text-sm">{selectedDoctor ? `Dr. ${selectedDoctor.user?.firstName} ${selectedDoctor.user?.lastName}` : "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-semibold mb-1">Schedule</p>
+                      <p className="font-bold text-sm text-primary">
+                        {form.appointmentDate ? format(new Date(form.appointmentDate), "MMM dd") : "-"} 
+                        {form.appointmentTime ? ` at ${formatSlot(form.appointmentTime)}` : ""}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
 
-              <div className="rounded-xl border bg-muted/40 p-4 text-sm">
-                <p className="font-semibold mb-2">Booking summary</p>
-                <p>Patient: {isPatient ? `${user?.firstName || ""} ${user?.lastName || ""}` : `${selectedPatient?.firstName || "-"} ${selectedPatient?.lastName || ""}`}</p>
-                <p>Doctor: {selectedDoctor ? `Dr. ${selectedDoctor.user?.firstName} ${selectedDoctor.user?.lastName}` : "-"}</p>
-                <p>
-                  Slot: {form.appointmentDate || "-"} {form.appointmentTime ? `at ${formatSlot(form.appointmentTime)}` : ""}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between border-t pt-4">
-            <Button type="button" variant="outline" onClick={goBack} disabled={step === 1 || loading}>
-              <ChevronLeft className="mr-1 size-4" /> Back
+          <div className="flex items-center justify-between border-t border-border/40 pt-6 mt-6">
+            <Button type="button" variant="outline" className="rounded-xl h-11 font-bold" onClick={goBack} disabled={step === 1 || loading}>
+              <ChevronLeft className="mr-1 size-4" /> Go Back
             </Button>
 
             {step < 3 ? (
-              <Button type="button" className="gradient-primary border-0" onClick={goNext}>
+              <Button type="button" className="gradient-primary border-0 rounded-xl h-11 px-6 font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={goNext}>
                 Continue <ChevronRight className="ml-1 size-4" />
               </Button>
             ) : (
-              <Button type="button" className="gradient-primary border-0" onClick={onSubmit} disabled={loading}>
-                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
+              <Button type="button" className="gradient-accent border-0 rounded-xl h-11 px-6 font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all" onClick={onSubmit} disabled={loading}>
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <CheckCircle2 className="mr-2 size-5" />}
                 Confirm Booking
               </Button>
             )}

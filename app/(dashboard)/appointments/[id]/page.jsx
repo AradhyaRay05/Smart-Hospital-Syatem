@@ -7,10 +7,9 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Loader2, XCircle, CheckCircle, UserCog, Users, Calendar, FileText } from "lucide-react";
+import { Loader2, XCircle, CheckCircle, UserCog, Users, Calendar, FileText, ArrowLeft } from "lucide-react";
 
 export default function AppointmentDetailPage() {
   const router = useRouter();
@@ -60,132 +59,152 @@ export default function AppointmentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-8 animate-spin text-primary" />
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
+        <Loader2 className="size-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading appointment data...</p>
       </div>
     );
   }
 
   if (!appointment) return null;
 
-  return (
-    <div>
-      <PageHeader
-        title="Appointment Details"
-        description={`Appointment #${appointment.id.slice(0, 8)}`}
-        breadcrumbs={[
-          { label: "Appointments", href: "/appointments" },
-          { label: "Details" },
-        ]}
-      >
-        {appointment.status === "SCHEDULED" && (
-          <div className="flex gap-2">
-            <Button onClick={handleComplete} disabled={actionLoading}>
-              <CheckCircle className="mr-2 size-4" />
-              Complete
-            </Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={actionLoading}>
-              <XCircle className="mr-2 size-4" />
-              Cancel
-            </Button>
-          </div>
-        )}
-      </PageHeader>
+  const statusColors = {
+    SCHEDULED: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-0",
+    COMPLETED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0",
+    CANCELLED: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-0"
+  };
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Calendar className="size-4" />
+  return (
+    <div className="animate-in fade-in zoom-in-95 duration-500 max-w-5xl mx-auto space-y-6">
+      <div className="flex items-center gap-4 mb-2">
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
+          <ArrowLeft className="size-5" />
+        </Button>
+        <PageHeader
+          title="Appointment Details"
+          description={`ID: #${appointment.id.slice(0, 8)}`}
+          breadcrumbs={[
+            { label: "Appointments", href: "/appointments" },
+            { label: "Details" },
+          ]}
+          className="m-0 p-0"
+        >
+          {appointment.status === "SCHEDULED" && (
+            <div className="flex gap-3">
+              <Button onClick={handleComplete} disabled={actionLoading} className="gradient-accent border-0 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
+                <CheckCircle className="mr-2 size-4" /> Mark Complete
+              </Button>
+              <Button variant="destructive" onClick={handleCancel} disabled={actionLoading} className="rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
+                <XCircle className="mr-2 size-4" /> Cancel
+              </Button>
+            </div>
+          )}
+        </PageHeader>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-5 items-start">
+        {/* Left Column - Main Info */}
+        <Card className="lg:col-span-3 shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+            <CardTitle className="text-lg font-bold flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-xl text-primary"><Calendar className="size-5" /></div>
               Appointment Info
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Status</span>
-              <Badge variant={appointment.status === "SCHEDULED" ? "default" : "secondary"}>
-                {appointment.status}
-              </Badge>
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-2 gap-6 bg-background rounded-2xl border border-border/50 p-5">
+              <div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Status</p>
+                <Badge className={`px-3 py-1 font-bold ${statusColors[appointment.status] || "secondary"}`}>
+                  {appointment.status}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Schedule</p>
+                <p className="font-bold text-foreground">{format(new Date(appointment.appointmentDate), "MMM dd, yyyy")}</p>
+                <p className="text-sm font-semibold text-primary">{appointment.appointmentTime}</p>
+              </div>
             </div>
-            <Separator />
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Date</span>
-              <span className="font-medium">{format(new Date(appointment.appointmentDate), "MMMM dd, yyyy")}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Time</span>
-              <span className="font-medium">{appointment.appointmentTime}</span>
-            </div>
+
             {appointment.reason && (
-              <>
-                <Separator />
-                <div>
-                  <span className="text-muted-foreground">Reason</span>
-                  <p className="mt-1">{appointment.reason}</p>
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <FileText className="size-4" /> Reason for visit
+                </p>
+                <div className="bg-muted/30 p-4 rounded-xl border border-border/40 text-foreground font-medium leading-relaxed">
+                  {appointment.reason}
                 </div>
-              </>
+              </div>
             )}
+            
             {appointment.notes && (
-              <>
-                <Separator />
-                <div>
-                  <span className="text-muted-foreground">Notes</span>
-                  <p className="mt-1">{appointment.notes}</p>
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <FileText className="size-4" /> Additional Notes
+                </p>
+                <div className="bg-muted/30 p-4 rounded-xl border border-border/40 text-foreground font-medium leading-relaxed">
+                  {appointment.notes}
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <UserCog className="size-4" />
-                Doctor
+        {/* Right Column - People & Meta */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+            <CardHeader className="bg-blue-50/50 dark:bg-blue-900/10 border-b border-border/30 pb-4">
+              <CardTitle className="text-lg font-bold flex items-center gap-3">
+                <div className="p-2 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 rounded-xl"><UserCog className="size-5" /></div>
+                Consulting Doctor
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="font-medium">Dr. {appointment.doctor.user.firstName} {appointment.doctor.user.lastName}</p>
-              <p className="text-sm text-muted-foreground">
-                {appointment.doctor.department.name} &bull; {appointment.doctor.specialization}
+            <CardContent className="p-5">
+              <p className="text-lg font-extrabold text-foreground">Dr. {appointment.doctor.user.firstName} {appointment.doctor.user.lastName}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Badge variant="secondary" className="font-semibold">{appointment.doctor.department.name}</Badge>
+                <Badge variant="outline" className="font-semibold text-muted-foreground">{appointment.doctor.specialization}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+            <CardHeader className="bg-teal-50/50 dark:bg-teal-900/10 border-b border-border/30 pb-4">
+              <CardTitle className="text-lg font-bold flex items-center gap-3">
+                <div className="p-2 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-400 rounded-xl"><Users className="size-5" /></div>
+                Patient Info
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5">
+              <p className="text-lg font-extrabold text-foreground">{appointment.patient.firstName} {appointment.patient.lastName}</p>
+              <p className="text-sm font-semibold text-muted-foreground mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-teal-500" />
+                {appointment.patient.phone || "No phone provided"}
               </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Users className="size-4" />
-                Patient
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-medium">{appointment.patient.firstName} {appointment.patient.lastName}</p>
-              <p className="text-sm text-muted-foreground">{appointment.patient.phone}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <FileText className="size-4" />
-                Linked Records
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Medical Record</span>
-                <Badge variant={appointment.medicalRecord ? "default" : "secondary"}>
-                  {appointment.medicalRecord ? "Created" : "Not yet"}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Bill</span>
-                <Badge variant={appointment.bill ? "default" : "secondary"}>
-                  {appointment.bill ? `$${appointment.bill.totalAmount}` : "Not generated"}
-                </Badge>
+          <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+            <CardContent className="p-0">
+              <div className="divide-y divide-border/40">
+                <div className="p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-muted rounded-lg"><FileText className="size-4 text-muted-foreground" /></div>
+                    <span className="font-bold text-sm">Medical Record</span>
+                  </div>
+                  <Badge className={`font-bold ${appointment.medicalRecord ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                    {appointment.medicalRecord ? "Generated" : "Not yet"}
+                  </Badge>
+                </div>
+                <div className="p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-muted rounded-lg"><FileText className="size-4 text-muted-foreground" /></div>
+                    <span className="font-bold text-sm">Billing</span>
+                  </div>
+                  <Badge className={`font-bold ${appointment.bill ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}>
+                    {appointment.bill ? `$${appointment.bill.totalAmount}` : "Not generated"}
+                  </Badge>
+                </div>
               </div>
             </CardContent>
           </Card>

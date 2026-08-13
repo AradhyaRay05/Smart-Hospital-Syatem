@@ -12,15 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, PlusCircle, Stethoscope } from "lucide-react";
 import { FormSelect } from "@/components/shared/form-select";
 
 const createDoctorSchema = z.object({
@@ -77,82 +70,94 @@ export default function NewDoctorPage() {
   };
 
   return (
-    <div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto space-y-6">
       <PageHeader
-        title="Register Doctor"
-        description="Add a new doctor to the system"
+        title="Register New Doctor"
+        description="Add a new medical professional to the hospital system"
         breadcrumbs={[
           { label: "Doctors", href: "/doctors" },
           { label: "Register Doctor" },
         ]}
       />
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Doctor Information</CardTitle>
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+          <CardTitle className="text-lg font-bold flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary"><Stethoscope className="size-5" /></div>
+            Doctor Information
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
-                <Input id="firstName" placeholder="John" {...register("firstName")} />
-                {errors.firstName && <p className="text-sm text-destructive">{errors.firstName.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
-                <Input id="lastName" placeholder="Doe" {...register("lastName")} />
-                {errors.lastName && <p className="text-sm text-destructive">{errors.lastName.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
-                <Input id="email" type="email" placeholder="doctor@hospital.com" {...register("email")} />
-                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Department <span className="text-destructive">*</span></Label>
-              <FormSelect
-                options={departments.map((d) => ({ value: d.id, label: d.name }))}
-                onValueChange={(val) => setValue("departmentId", val)}
-                placeholder="Select department"
-              />
-              {errors.departmentId && <p className="text-sm text-destructive">{errors.departmentId.message}</p>}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="specialization">Specialization <span className="text-destructive">*</span></Label>
-                <Input id="specialization" placeholder="e.g., Cardiologist" {...register("specialization")} />
-                {errors.specialization && <p className="text-sm text-destructive">{errors.specialization.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="qualification">Qualification <span className="text-destructive">*</span></Label>
-                <Input id="qualification" placeholder="e.g., MD, MBBS" {...register("qualification")} />
-                {errors.qualification && <p className="text-sm text-destructive">{errors.qualification.message}</p>}
+        <CardContent className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Basic Info */}
+            <div className="space-y-6">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 pb-2">Personal Details</h3>
+              <div className="grid gap-6 sm:grid-cols-3">
+                <div className="space-y-2.5">
+                  <Label htmlFor="firstName" className="font-semibold text-foreground/80">First Name <span className="text-destructive">*</span></Label>
+                  <Input id="firstName" placeholder="e.g. John" {...register("firstName")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.firstName && <p className="text-sm font-medium text-destructive">{errors.firstName.message}</p>}
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="lastName" className="font-semibold text-foreground/80">Last Name <span className="text-destructive">*</span></Label>
+                  <Input id="lastName" placeholder="e.g. Doe" {...register("lastName")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.lastName && <p className="text-sm font-medium text-destructive">{errors.lastName.message}</p>}
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="email" className="font-semibold text-foreground/80">Email <span className="text-destructive">*</span></Label>
+                  <Input id="email" type="email" placeholder="doctor@hospital.com" {...register("email")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.email && <p className="text-sm font-medium text-destructive">{errors.email.message}</p>}
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="experience">Experience (years)</Label>
-                <Input id="experience" type="number" min="0" {...register("experience")} />
-                {errors.experience && <p className="text-sm text-destructive">{errors.experience.message}</p>}
+            {/* Professional Info */}
+            <div className="space-y-6">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 pb-2">Professional Details</h3>
+              
+              <div className="space-y-2.5 max-w-md">
+                <Label className="font-semibold text-foreground/80">Department <span className="text-destructive">*</span></Label>
+                <FormSelect
+                  options={departments.map((d) => ({ value: d.id, label: d.name }))}
+                  onValueChange={(val) => setValue("departmentId", val)}
+                  placeholder="Select hospital department"
+                />
+                {errors.departmentId && <p className="text-sm font-medium text-destructive">{errors.departmentId.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone <span className="text-destructive">*</span></Label>
-                <Input id="phone" placeholder="Phone number" {...register("phone")} />
-                {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2.5">
+                  <Label htmlFor="specialization" className="font-semibold text-foreground/80">Specialization <span className="text-destructive">*</span></Label>
+                  <Input id="specialization" placeholder="e.g., Cardiologist" {...register("specialization")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.specialization && <p className="text-sm font-medium text-destructive">{errors.specialization.message}</p>}
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="qualification" className="font-semibold text-foreground/80">Qualification <span className="text-destructive">*</span></Label>
+                  <Input id="qualification" placeholder="e.g., MD, MBBS" {...register("qualification")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.qualification && <p className="text-sm font-medium text-destructive">{errors.qualification.message}</p>}
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2.5">
+                  <Label htmlFor="experience" className="font-semibold text-foreground/80">Experience (years)</Label>
+                  <Input id="experience" type="number" min="0" {...register("experience")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.experience && <p className="text-sm font-medium text-destructive">{errors.experience.message}</p>}
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="phone" className="font-semibold text-foreground/80">Contact Phone <span className="text-destructive">*</span></Label>
+                  <Input id="phone" placeholder="Phone number" {...register("phone")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                  {errors.phone && <p className="text-sm font-medium text-destructive">{errors.phone.message}</p>}
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/40 mt-6">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12 gradient-primary border-0 rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 px-8">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <PlusCircle className="mr-2 size-5" />}
                 Register Doctor
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/doctors")}>
+              <Button type="button" variant="outline" className="w-full sm:w-auto h-12 rounded-xl font-bold" onClick={() => router.push("/doctors")}>
                 Cancel
               </Button>
             </div>

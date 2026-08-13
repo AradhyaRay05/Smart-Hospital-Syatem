@@ -16,7 +16,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background font-sans">
+      <body className="min-h-full flex flex-col bg-background font-sans selection:bg-primary/20 selection:text-primary">
         <TooltipProvider>
           {children}
           <Toaster position="top-right" richColors />

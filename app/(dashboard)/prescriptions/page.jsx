@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getPrescriptions } from "@/actions/prescriptions";
-import { Plus, Search, MoreHorizontal, Eye, Pill } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Eye, Pill, UserRound, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -43,40 +43,64 @@ export default function PrescriptionsPage() {
       header: "Patient",
       cell: ({ row }) => {
         const p = row.original.medicalRecord?.patient;
-        return p ? <p className="font-medium">{p.firstName} {p.lastName}</p> : "—";
+        return p ? (
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex p-2 bg-primary/10 rounded-lg text-primary">
+              <UserRound className="size-4" />
+            </div>
+            <p className="font-bold text-foreground text-base hover:text-primary transition-colors cursor-pointer" onClick={() => router.push(`/prescriptions/${row.original.id}`)}>
+              {p.firstName} {p.lastName}
+            </p>
+          </div>
+        ) : <span className="text-muted-foreground">—</span>;
       },
     },
     {
       accessorKey: "doctor",
-      header: "Doctor",
-      cell: ({ row }) => <p className="font-medium">Dr. {row.original.doctor.user.firstName} {row.original.doctor.user.lastName}</p>,
+      header: "Prescribed By",
+      cell: ({ row }) => (
+        <p className="font-bold text-foreground">Dr. {row.original.doctor.user.firstName} {row.original.doctor.user.lastName}</p>
+      ),
     },
     {
       accessorKey: "items",
       header: "Medicines",
-      cell: ({ row }) => <Badge variant="secondary">{row.original.items.length} item(s)</Badge>,
+      cell: ({ row }) => (
+        <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400 font-bold shadow-none border-0 px-2.5 py-0.5">
+          {row.original.items.length} item(s)
+        </Badge>
+      ),
     },
     {
       accessorKey: "medicines",
       header: "Medicine Names",
-      cell: ({ row }) => <span className="text-muted-foreground text-sm">{row.original.items.map(i => i.medicineName).join(", ")}</span>,
+      cell: ({ row }) => (
+        <span className="text-muted-foreground font-medium text-sm line-clamp-1 max-w-[200px] xl:max-w-[300px]">
+          {row.original.items.map(i => i.medicineName).join(", ")}
+        </span>
+      ),
     },
     {
       accessorKey: "createdAt",
-      header: "Date",
-      cell: ({ row }) => format(new Date(row.original.createdAt), "MMM dd, yyyy"),
+      header: "Date Issued",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1.5 text-muted-foreground font-semibold">
+          <CalendarClock className="size-3.5" />
+          {format(new Date(row.original.createdAt), "MMM dd, yyyy")}
+        </div>
+      ),
     },
     {
       id: "actions",
       header: "",
       cell: ({ row }) => (
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground">
+          <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary outline-none">
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => router.push(`/prescriptions/${row.original.id}`)}>
-              <Eye className="mr-2 size-4" /> View Details
+          <DropdownMenuContent align="end" className="rounded-xl shadow-lg p-1 min-w-[160px]">
+            <DropdownMenuItem className="font-medium cursor-pointer rounded-lg" onClick={() => router.push(`/prescriptions/${row.original.id}`)}>
+              <Eye className="mr-2 size-4 text-primary" /> View Details
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -85,19 +109,45 @@ export default function PrescriptionsPage() {
   ];
 
   return (
-    <div>
-      <PageHeader title="Prescriptions" description="View and manage patient prescriptions" breadcrumbs={[{ label: "Prescriptions" }]} />
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search prescriptions..." className="pl-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+    <div className="animate-in fade-in zoom-in-95 duration-500">
+      <PageHeader 
+        title="Prescriptions" 
+        description="View and manage patient medication records and clinical instructions" 
+        breadcrumbs={[{ label: "Prescriptions" }]} 
+      >
+        <Link href="/prescriptions/new">
+          <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
+            <Plus className="mr-2 size-5" />
+            Create Prescription
+          </Button>
+        </Link>
+      </PageHeader>
+      
+      <div className="bg-card shadow-soft rounded-3xl border border-border/40 p-4 sm:p-6 mb-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Search prescriptions by patient..." 
+              className="pl-11 h-12 rounded-xl bg-background/50 border-border/60 focus-visible:ring-primary/30 font-medium" 
+              value={search} 
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }} 
+            />
+          </div>
         </div>
+
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/60" />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border/50 overflow-hidden">
+            <DataTable columns={columns} data={prescriptions} pagination={pagination} onPageChange={setPage} />
+          </div>
+        )}
       </div>
-      {loading ? (
-        <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />)}</div>
-      ) : (
-        <DataTable columns={columns} data={prescriptions} pagination={pagination} onPageChange={setPage} />
-      )}
     </div>
   );
 }
