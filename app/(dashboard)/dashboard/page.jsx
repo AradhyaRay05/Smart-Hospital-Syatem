@@ -5,7 +5,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Users, UserCog, CalendarDays, DollarSign, Calendar, FileText, Pill, Receipt, ChevronRight, Activity, Clock
+  Users, UserCog, CalendarDays, IndianRupee, Calendar, FileText, Pill, Receipt, ChevronRight, Activity, Clock
 } from "lucide-react";
 import Link from "next/link";
 
@@ -55,7 +55,7 @@ async function AdminDashboard({ user }) {
     { title: "Total Patients", value: String(patientCount), description: "Registered patients", icon: Users },
     { title: "Total Doctors", value: String(doctorCount), description: "Active doctors", icon: UserCog },
     { title: "Today's Schedule", value: String(todayAppointments), description: `${pendingAppointments} pending total`, icon: CalendarDays },
-    { title: "Revenue", value: `$${totalRevenue.toFixed(0)}`, description: "From paid bills", icon: DollarSign },
+    { title: "Revenue", value: `₹${totalRevenue.toFixed(0)}`, description: "From paid bills", icon: IndianRupee },
   ];
 
   return (
@@ -76,7 +76,7 @@ async function AdminDashboard({ user }) {
           { title: "Register Patient", href: "/patients/new", icon: Users, color: "text-blue-600" }, 
           { title: "Book Appointment", href: "/appointments/new", icon: Calendar, color: "text-teal-600" }, 
           { title: "Medical Record", href: "/medical-records/new", icon: FileText, color: "text-indigo-600" }, 
-          { title: "Generate Bill", href: "/billing/new", icon: DollarSign, color: "text-emerald-600" }
+          { title: "Generate Bill", href: "/billing/new", icon: IndianRupee, color: "text-emerald-600" }
         ].map((a) => (
           <Link key={a.title} href={a.href} className="group block">
             <div className="flex items-center gap-4 rounded-2xl border border-border/50 bg-card p-4 transition-all duration-300 hover:shadow-hover hover:-translate-y-1 hover:border-primary/40">

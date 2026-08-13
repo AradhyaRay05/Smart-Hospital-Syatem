@@ -202,7 +202,7 @@ export default function AppointmentDetailPage() {
                     <span className="font-bold text-sm">Billing</span>
                   </div>
                   <Badge className={`font-bold ${appointment.bill ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}>
-                    {appointment.bill ? `$${appointment.bill.totalAmount}` : "Not generated"}
+                    {appointment.bill ? `₹${appointment.bill.totalAmount}` : "Not generated"}
                   </Badge>
                 </div>
               </div>

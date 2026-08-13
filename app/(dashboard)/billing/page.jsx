@@ -67,7 +67,7 @@ export default function BillingPage() {
     {
       accessorKey: "totalAmount",
       header: "Amount",
-      cell: ({ row }) => <p className="font-extrabold text-foreground">${row.original.totalAmount.toFixed(2)}</p>,
+      cell: ({ row }) => <p className="font-extrabold text-foreground">₹{row.original.totalAmount.toFixed(2)}</p>,
     },
     {
       accessorKey: "paymentStatus",

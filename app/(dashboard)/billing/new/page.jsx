@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/components/shared/form-select";
 import { toast } from "sonner";
-import { Loader2, DollarSign, Calculator, Receipt } from "lucide-react";
+import { Loader2, IndianRupee, Calculator, Receipt } from "lucide-react";
 
 const schema = z.object({
   patientId: z.string().min(1, "Patient is required"),
@@ -136,7 +136,7 @@ export default function NewBillPage() {
                 <span className="text-muted-foreground font-medium text-sm">Total amount due for this invoice</span>
               </div>
               <span className="text-4xl font-black text-foreground flex items-center gap-1">
-                <DollarSign className="size-8 text-primary" />
+                <IndianRupee className="size-8 text-primary" />
                 {Math.max(0, total).toFixed(2)}
               </span>
             </div>

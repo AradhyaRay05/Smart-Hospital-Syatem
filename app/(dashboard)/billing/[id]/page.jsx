@@ -125,24 +125,24 @@ export default function BillDetailPage() {
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-foreground">Consultation Fee</span>
-                <span className="font-bold text-foreground">${bill.consultationFee.toFixed(2)}</span>
+                <span className="font-bold text-foreground">₹{bill.consultationFee.toFixed(2)}</span>
               </div>
               {bill.additionalCharges > 0 && (
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-foreground">Additional Charges</span>
-                  <span className="font-bold text-foreground">${bill.additionalCharges.toFixed(2)}</span>
+                  <span className="font-bold text-foreground">₹{bill.additionalCharges.toFixed(2)}</span>
                 </div>
               )}
               {bill.discount > 0 && (
                 <div className="flex justify-between items-center text-emerald-600">
                   <span className="font-semibold">Discount Applied</span>
-                  <span className="font-bold">-${bill.discount.toFixed(2)}</span>
+                  <span className="font-bold">-₹{bill.discount.toFixed(2)}</span>
                 </div>
               )}
             </div>
             <div className="bg-primary/5 px-6 py-5 border-t border-primary/10 flex justify-between items-center">
               <span className="text-xl font-extrabold text-foreground">Total Amount</span>
-              <span className="text-3xl font-black text-primary">${bill.totalAmount.toFixed(2)}</span>
+              <span className="text-3xl font-black text-primary">₹{bill.totalAmount.toFixed(2)}</span>
             </div>
           </div>
 
