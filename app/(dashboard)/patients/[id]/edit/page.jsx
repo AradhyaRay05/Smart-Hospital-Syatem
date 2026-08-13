@@ -12,15 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserRound, Save, ArrowLeft } from "lucide-react";
 import { FormSelect } from "@/components/shared/form-select";
 import { format } from "date-fns";
 
@@ -76,45 +69,55 @@ export default function EditPatientPage() {
 
   if (fetching) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-8 animate-spin text-primary" />
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
+        <Loader2 className="size-10 animate-spin text-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading patient data...</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <PageHeader
-        title="Edit Patient"
-        description="Update patient information"
-        breadcrumbs={[
-          { label: "Patients", href: "/patients" },
-          { label: "Edit Patient" },
-        ]}
-      />
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-4 mb-2">
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
+          <ArrowLeft className="size-5" />
+        </Button>
+        <PageHeader
+          title="Edit Patient"
+          description="Update personal and demographic information"
+          breadcrumbs={[
+            { label: "Patients", href: "/patients" },
+            { label: "Edit Patient" },
+          ]}
+          className="m-0 p-0"
+        />
+      </div>
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Patient Information</CardTitle>
+      <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+          <CardTitle className="text-lg font-bold flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary"><UserRound className="size-5" /></div>
+            Patient Information
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
-                <Input id="firstName" {...register("firstName")} />
-                {errors.firstName && <p className="text-sm text-destructive">{errors.firstName.message}</p>}
+        <CardContent className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <Label htmlFor="firstName" className="font-semibold text-foreground/80">First Name <span className="text-destructive">*</span></Label>
+                <Input id="firstName" {...register("firstName")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                {errors.firstName && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.firstName.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
-                <Input id="lastName" {...register("lastName")} />
-                {errors.lastName && <p className="text-sm text-destructive">{errors.lastName.message}</p>}
+              <div className="space-y-2.5">
+                <Label htmlFor="lastName" className="font-semibold text-foreground/80">Last Name <span className="text-destructive">*</span></Label>
+                <Input id="lastName" {...register("lastName")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                {errors.lastName && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.lastName.message}</p>}
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Gender <span className="text-destructive">*</span></Label>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <Label className="font-semibold text-foreground/80">Gender <span className="text-destructive">*</span></Label>
                 <FormSelect
                   options={[
                     { value: "MALE", label: "Male" },
@@ -124,43 +127,52 @@ export default function EditPatientPage() {
                   onValueChange={(val) => setValue("gender", val)}
                   placeholder="Select gender"
                 />
-                {errors.gender && <p className="text-sm text-destructive">{errors.gender.message}</p>}
+                {errors.gender && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.gender.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth <span className="text-destructive">*</span></Label>
-                <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
-                {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>}
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone <span className="text-destructive">*</span></Label>
-                <Input id="phone" {...register("phone")} />
-                {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bloodGroup">Blood Group</Label>
-                <Input id="bloodGroup" placeholder="e.g., A+, B-, O+" {...register("bloodGroup")} />
+              <div className="space-y-2.5">
+                <Label htmlFor="dateOfBirth" className="font-semibold text-foreground/80">Date of Birth <span className="text-destructive">*</span></Label>
+                <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                {errors.dateOfBirth && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.dateOfBirth.message}</p>}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="emergencyContact">Emergency Contact</Label>
-              <Input id="emergencyContact" {...register("emergencyContact")} />
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/50" /></div>
+              <div className="relative flex justify-center text-xs font-bold uppercase tracking-wider">
+                <span className="bg-card px-4 text-muted-foreground">Contact & Health</span>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea id="address" rows={2} {...register("address")} />
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2.5">
+                <Label htmlFor="phone" className="font-semibold text-foreground/80">Phone Number <span className="text-destructive">*</span></Label>
+                <Input id="phone" {...register("phone")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
+                {errors.phone && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.phone.message}</p>}
+              </div>
+              <div className="space-y-2.5">
+                <Label htmlFor="bloodGroup" className="font-semibold text-foreground/80">Blood Group</Label>
+                <Input id="bloodGroup" placeholder="e.g., A+, B-, O+" {...register("bloodGroup")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30 uppercase" />
+              </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Update Patient
+            <div className="space-y-2.5">
+              <Label htmlFor="emergencyContact" className="font-semibold text-foreground/80">Emergency Contact</Label>
+              <Input id="emergencyContact" {...register("emergencyContact")} className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" placeholder="Name and Phone (Optional)" />
+            </div>
+
+            <div className="space-y-2.5">
+              <Label htmlFor="address" className="font-semibold text-foreground/80">Address</Label>
+              <Textarea id="address" rows={3} {...register("address")} className="rounded-xl bg-background/50 focus-visible:ring-primary/30 resize-none" placeholder="Full residential address..." />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/40 mt-6">
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto h-12 gradient-primary border-0 rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 px-8">
+                {loading ? <Loader2 className="mr-2 size-5 animate-spin" /> : <Save className="mr-2 size-5" />}
+                Update Patient Profile
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/patients")}>Cancel</Button>
+              <Button type="button" variant="outline" className="w-full sm:w-auto h-12 rounded-xl font-bold" onClick={() => router.push("/patients")}>
+                Cancel
+              </Button>
             </div>
           </form>
         </CardContent>

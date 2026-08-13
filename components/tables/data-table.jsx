@@ -35,14 +35,14 @@ export function DataTable({ columns, data, pagination, onPageChange }) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border">
+    <div className="space-y-4 animate-in fade-in duration-300">
+      <div className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-2xs">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40 border-b border-border/50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-border/40">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="font-bold text-xs uppercase tracking-wider text-muted-foreground/80 h-11">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -51,12 +51,12 @@ export function DataTable({ columns, data, pagination, onPageChange }) {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="divide-y divide-border/40">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="hover:bg-muted/30 transition-colors duration-150 border-border/30">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-3.5 px-4 font-medium">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -64,8 +64,8 @@ export function DataTable({ columns, data, pagination, onPageChange }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results found.
+                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground font-medium">
+                  No records found.
                 </TableCell>
               </TableRow>
             )}
@@ -74,33 +74,35 @@ export function DataTable({ columns, data, pagination, onPageChange }) {
       </div>
 
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-            {pagination.total} results
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-muted/20 border border-border/40 shadow-2xs">
+          <p className="text-xs sm:text-sm font-semibold text-muted-foreground">
+            Showing <span className="font-bold text-foreground">{(pagination.page - 1) * pagination.limit + 1}</span> to{" "}
+            <span className="font-bold text-foreground">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{" "}
+            <span className="font-bold text-foreground">{pagination.total}</span> entries
           </p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl font-bold h-9"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
             >
-              <ChevronLeft className="size-4" />
-              Previous
+              <ChevronLeft className="size-4 mr-1" />
+              Prev
             </Button>
-            <span className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+            <span className="text-xs font-bold px-3 py-1 rounded-lg bg-background border border-border/50 text-foreground">
+              {pagination.page} / {pagination.totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl font-bold h-9"
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
             >
               Next
-              <ChevronRight className="size-4" />
+              <ChevronRight className="size-4 ml-1" />
             </Button>
           </div>
         </div>

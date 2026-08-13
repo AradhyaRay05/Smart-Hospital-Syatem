@@ -34,42 +34,63 @@ export function TopNav({ onMenuToggle }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
-      <Button variant="ghost" size="icon-sm" onClick={onMenuToggle} className="lg:hidden">
+    <header className="sticky top-0 z-40 flex h-20 items-center gap-4 border-b border-border/40 bg-card/80 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-card/60 lg:px-8">
+      {/* Mobile Menu Toggle */}
+      <Button variant="ghost" size="icon" onClick={onMenuToggle} className="lg:hidden rounded-xl h-10 w-10 hover:bg-muted">
         <Menu className="size-5" />
       </Button>
 
+      {/* Global Search Bar */}
       <div className="flex flex-1 items-center gap-4">
-        <div className="relative hidden w-full max-w-sm md:block">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search patients, doctors, appointments..." className="pl-9" />
+        <div className="relative hidden w-full max-w-md md:block">
+          <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input 
+            placeholder="Search patients, doctors, appointments..." 
+            className="pl-11 h-11 rounded-xl bg-background/50 border-border/50 focus-visible:ring-primary/30 font-medium text-sm transition-all focus:bg-background" 
+          />
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon-sm" className="relative">
-          <Bell className="size-4" />
-          <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" />
+      {/* User Actions */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="relative rounded-xl h-10 w-10 hover:bg-muted">
+          <Bell className="size-5 text-muted-foreground" />
+          <span className="absolute right-2 top-2 size-2.5 rounded-full bg-teal-500 ring-2 ring-card animate-pulse" />
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1 outline-none hover:bg-muted">
-            <Avatar className="size-8">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+          <DropdownMenuTrigger className="flex items-center gap-3 rounded-2xl p-1.5 pr-2 outline-none hover:bg-muted/80 transition-colors border border-transparent hover:border-border/40">
+            <Avatar className="size-9 border-2 border-background shadow-xs">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xs font-extrabold">
                 {initials}
               </AvatarFallback>
             </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <div className="px-2 py-1.5 border-b">
-              <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+            <div className="hidden text-left sm:block">
+              <p className="text-sm font-bold text-foreground leading-tight">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs font-semibold text-primary capitalize">{user?.role?.toLowerCase() || "User"}</p>
             </div>
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
-              <User className="mr-2 size-4" />Profile
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-xl border-border/40">
+            <div className="px-3 py-2.5 mb-1 rounded-xl bg-muted/40 border border-border/30">
+              <p className="text-sm font-extrabold text-foreground">{user?.firstName} {user?.lastName}</p>
+              <p className="text-xs font-semibold text-muted-foreground truncate">{user?.email}</p>
+            </div>
+            
+            <DropdownMenuItem 
+              onClick={() => router.push("/profile")}
+              className="rounded-xl font-semibold cursor-pointer py-2.5 hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <User className="mr-2.5 size-4 text-primary" /> Profile Settings
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive" disabled={loggingOut}>
-              <LogOut className="mr-2 size-4" />{loggingOut ? "Signing out..." : "Sign out"}
+
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              className="rounded-xl font-semibold cursor-pointer py-2.5 text-destructive focus:text-destructive focus:bg-destructive/10 transition-colors" 
+              disabled={loggingOut}
+            >
+              <LogOut className="mr-2.5 size-4" />
+              {loggingOut ? "Signing out..." : "Sign out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

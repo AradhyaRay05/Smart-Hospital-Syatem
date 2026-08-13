@@ -5,7 +5,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Users, UserCog, CalendarDays, DollarSign, Calendar, FileText, Pill, Receipt,
+  Users, UserCog, CalendarDays, DollarSign, Calendar, FileText, Pill, Receipt, ChevronRight, Activity, Clock
 } from "lucide-react";
 import Link from "next/link";
 
@@ -29,6 +29,9 @@ export default async function DashboardPage() {
   return <AdminDashboard user={user} />;
 }
 
+// ----------------------------------------------------------------------
+// ADMIN DASHBOARD
+// ----------------------------------------------------------------------
 async function AdminDashboard({ user }) {
   let patientCount = 0, doctorCount = 0, departmentCount = 0, todayAppointments = 0, pendingAppointments = 0, totalRevenue = 0, recentAppointments = [], recentPatients = [], recentPrescriptions = [];
 
@@ -51,34 +54,134 @@ async function AdminDashboard({ user }) {
   const stats = [
     { title: "Total Patients", value: String(patientCount), description: "Registered patients", icon: Users },
     { title: "Total Doctors", value: String(doctorCount), description: "Active doctors", icon: UserCog },
-    { title: "Today", value: String(todayAppointments), description: `${pendingAppointments} pending total`, icon: CalendarDays },
+    { title: "Today's Schedule", value: String(todayAppointments), description: `${pendingAppointments} pending total`, icon: CalendarDays },
     { title: "Revenue", value: `$${totalRevenue.toFixed(0)}`, description: "From paid bills", icon: DollarSign },
   ];
 
   return (
-    <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold tracking-tight">Welcome back{user?.firstName ? `, ${user.firstName}` : ""}</h1><p className="text-muted-foreground">Hospital operations overview.</p></div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{stats.map((s) => <StatCard key={s.title} {...s} />)}</div>
-      <div className="grid gap-4 sm:grid-cols-4">
-        {[{ title: "Register Patient", href: "/patients/new", icon: Users }, { title: "Book Appointment", href: "/appointments/new", icon: Calendar }, { title: "Medical Record", href: "/medical-records/new", icon: FileText }, { title: "Generate Bill", href: "/billing/new", icon: DollarSign }].map((a) => (
-          <Link key={a.title} href={a.href}><div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50"><a.icon className="size-4 text-primary" /><span className="text-sm font-medium">{a.title}</span></div></Link>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+          Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+        </h1>
+        <p className="text-lg font-medium text-muted-foreground">Hospital operations and daily overview.</p>
+      </div>
+      
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((s) => <StatCard key={s.title} {...s} />)}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { title: "Register Patient", href: "/patients/new", icon: Users, color: "text-blue-600" }, 
+          { title: "Book Appointment", href: "/appointments/new", icon: Calendar, color: "text-teal-600" }, 
+          { title: "Medical Record", href: "/medical-records/new", icon: FileText, color: "text-indigo-600" }, 
+          { title: "Generate Bill", href: "/billing/new", icon: DollarSign, color: "text-emerald-600" }
+        ].map((a) => (
+          <Link key={a.title} href={a.href} className="group block">
+            <div className="flex items-center gap-4 rounded-2xl border border-border/50 bg-card p-4 transition-all duration-300 hover:shadow-hover hover:-translate-y-1 hover:border-primary/40">
+              <div className={`rounded-xl bg-muted/60 p-3 transition-colors duration-300 group-hover:bg-primary/10 ${a.color}`}>
+                <a.icon className="size-5" />
+              </div>
+              <span className="font-bold text-foreground group-hover:text-primary transition-colors">{a.title}</span>
+            </div>
+          </Link>
         ))}
       </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card><CardHeader><CardTitle className="text-base">Upcoming Appointments</CardTitle></CardHeader><CardContent>
-          {recentAppointments.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No upcoming appointments.</p> : <div className="space-y-3">{recentAppointments.map((apt) => <Link key={apt.id} href={`/appointments/${apt.id}`} className="block"><div className="flex items-center justify-between rounded-lg border p-2.5 text-sm hover:bg-muted/50"><div><p className="font-medium">{apt.patient.firstName} {apt.patient.lastName}</p><p className="text-xs text-muted-foreground">Dr. {apt.doctor.user.firstName} {apt.doctor.user.lastName}</p></div><Badge className="text-xs">{apt.appointmentTime}</Badge></div></Link>)}</div>}
-        </CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-base">Recent Patients</CardTitle></CardHeader><CardContent>
-          {recentPatients.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No patients yet.</p> : <div className="space-y-3">{recentPatients.map((p) => <Link key={p.id} href={`/patients/${p.id}`} className="block"><div className="flex items-center justify-between rounded-lg border p-2.5 text-sm hover:bg-muted/50"><div><p className="font-medium">{p.firstName} {p.lastName}</p><p className="text-xs text-muted-foreground">{p.phone}</p></div><Badge variant="secondary" className="text-xs">{p.gender}</Badge></div></Link>)}</div>}
-        </CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-base">Latest Prescriptions</CardTitle></CardHeader><CardContent>
-          {recentPrescriptions.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No prescriptions yet.</p> : <div className="space-y-3">{recentPrescriptions.map((rx) => <Link key={rx.id} href={`/prescriptions/${rx.id}`} className="block"><div className="rounded-lg border p-2.5 text-sm hover:bg-muted/50"><div className="flex items-center justify-between"><p className="font-medium">{rx.medicalRecord?.patient?.firstName} {rx.medicalRecord?.patient?.lastName}</p><Badge variant="secondary" className="text-xs">{rx.items.length} med(s)</Badge></div><p className="text-xs text-muted-foreground mt-0.5">Dr. {rx.doctor.user.firstName} {rx.doctor.user.lastName}</p></div></Link>)}</div>}
-        </CardContent></Card>
+        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <CalendarDays className="size-4 text-primary" /> Upcoming Appointments
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {recentAppointments.length === 0 ? (
+              <p className="text-sm font-medium text-muted-foreground text-center py-6">No upcoming appointments.</p>
+            ) : (
+              <div className="space-y-3">
+                {recentAppointments.map((apt) => (
+                  <Link key={apt.id} href={`/appointments/${apt.id}`} className="block group">
+                    <div className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-3 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm">
+                      <div>
+                        <p className="font-bold text-foreground group-hover:text-primary transition-colors">{apt.patient.firstName} {apt.patient.lastName}</p>
+                        <p className="text-xs font-medium text-muted-foreground mt-0.5">Dr. {apt.doctor.user.firstName} {apt.doctor.user.lastName}</p>
+                      </div>
+                      <Badge className="font-bold bg-primary/10 text-primary hover:bg-primary/20 shadow-none border-0">{apt.appointmentTime}</Badge>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Users className="size-4 text-teal-600" /> Recent Patients
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {recentPatients.length === 0 ? (
+              <p className="text-sm font-medium text-muted-foreground text-center py-6">No patients yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {recentPatients.map((p) => (
+                  <Link key={p.id} href={`/patients/${p.id}`} className="block group">
+                    <div className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-3 transition-all duration-200 hover:border-teal-500/30 hover:bg-teal-50/50 hover:shadow-sm dark:hover:bg-teal-900/10">
+                      <div>
+                        <p className="font-bold text-foreground group-hover:text-teal-600 transition-colors">{p.firstName} {p.lastName}</p>
+                        <p className="text-xs font-medium text-muted-foreground mt-0.5">{p.phone || "No phone"}</p>
+                      </div>
+                      <Badge variant="outline" className="font-semibold text-xs border-border/60 bg-muted/30">{p.gender}</Badge>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Pill className="size-4 text-indigo-600" /> Latest Prescriptions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {recentPrescriptions.length === 0 ? (
+              <p className="text-sm font-medium text-muted-foreground text-center py-6">No prescriptions yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {recentPrescriptions.map((rx) => (
+                  <Link key={rx.id} href={`/prescriptions/${rx.id}`} className="block group">
+                    <div className="rounded-xl border border-border/50 bg-background p-3 transition-all duration-200 hover:border-indigo-500/30 hover:bg-indigo-50/50 hover:shadow-sm dark:hover:bg-indigo-900/10">
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-foreground group-hover:text-indigo-600 transition-colors truncate pr-2">
+                          {rx.medicalRecord?.patient?.firstName} {rx.medicalRecord?.patient?.lastName}
+                        </p>
+                        <Badge className="font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 border-0 shadow-none shrink-0">
+                          {rx.items.length} med(s)
+                        </Badge>
+                      </div>
+                      <p className="text-xs font-medium text-muted-foreground mt-1">Dr. {rx.doctor.user.firstName} {rx.doctor.user.lastName}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
 
+// ----------------------------------------------------------------------
+// DOCTOR DASHBOARD
+// ----------------------------------------------------------------------
 async function DoctorDashboard({ user }) {
   let doctor = null;
   try { doctor = await prisma.doctor.findUnique({ where: { userId: user.id }, include: { department: true } }); } catch (e) {}
@@ -101,25 +204,87 @@ async function DoctorDashboard({ user }) {
   }
 
   return (
-    <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold tracking-tight">Dr. {user?.firstName} {user?.lastName}</h1><p className="text-muted-foreground">{doctor?.department?.name} &bull; {doctor?.specialization}</p></div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard title="Today's Appointments" value={String(todayAppointments.length)} description="Scheduled for today" icon={CalendarDays} />
-        <StatCard title="Upcoming" value={String(upcomingAppointments.length)} description="Future appointments" icon={Calendar} />
-        <StatCard title="Available" value={doctor?.available ? "Yes" : "No"} description="Availability status" icon={UserCog} />
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+          Dr. {user?.firstName} {user?.lastName}
+        </h1>
+        <p className="text-lg font-medium text-muted-foreground">
+          {doctor?.department?.name} &bull; {doctor?.specialization || "General"}
+        </p>
       </div>
+      
+      <div className="grid gap-5 sm:grid-cols-3">
+        <StatCard title="Today's Appointments" value={String(todayAppointments.length)} description="Scheduled for today" icon={Clock} />
+        <StatCard title="Upcoming" value={String(upcomingAppointments.length)} description="Future appointments" icon={CalendarDays} />
+        <StatCard title="Availability" value={doctor?.available ? "Available" : "Busy"} description="Current status" icon={Activity} />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card><CardHeader><CardTitle className="text-base">Today's Schedule</CardTitle></CardHeader><CardContent>
-          {todayAppointments.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No appointments today.</p> : <div className="space-y-3">{todayAppointments.map((apt) => <div key={apt.id} className="flex items-center justify-between rounded-lg border p-2.5 text-sm"><div><p className="font-medium">{apt.patient.firstName} {apt.patient.lastName}</p>{apt.reason && <p className="text-xs text-muted-foreground">{apt.reason}</p>}</div><Badge className="text-xs">{apt.appointmentTime}</Badge></div>)}</div>}
-        </CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-base">Upcoming Appointments</CardTitle></CardHeader><CardContent>
-          {upcomingAppointments.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No upcoming appointments.</p> : <div className="space-y-3">{upcomingAppointments.map((apt) => <div key={apt.id} className="flex items-center justify-between rounded-lg border p-2.5 text-sm"><div><p className="font-medium">{apt.patient.firstName} {apt.patient.lastName}</p></div><Badge variant="secondary" className="text-xs">{new Date(apt.appointmentDate).toLocaleDateString()}</Badge></div>)}</div>}
-        </CardContent></Card>
+        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2 text-primary">
+              <Clock className="size-4" /> Today's Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {todayAppointments.length === 0 ? (
+              <div className="text-center py-8 px-4 rounded-2xl border-2 border-dashed border-border/60 bg-muted/20">
+                <p className="text-sm font-bold text-muted-foreground">No appointments today.</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">Enjoy your free time or catch up on records.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {todayAppointments.map((apt) => (
+                  <div key={apt.id} className="group flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border-l-4 border-l-primary border border-border/50 bg-background p-4 shadow-sm transition-all hover:shadow-md hover:bg-muted/20">
+                    <div className="mb-3 sm:mb-0">
+                      <p className="font-bold text-foreground text-base">{apt.patient.firstName} {apt.patient.lastName}</p>
+                      {apt.reason && <p className="text-sm font-medium text-muted-foreground mt-0.5 line-clamp-1">{apt.reason}</p>}
+                    </div>
+                    <Badge className="sm:self-center w-fit font-bold bg-primary/10 text-primary border-0 shadow-none px-3 py-1 text-sm">
+                      {apt.appointmentTime}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Calendar className="size-4 text-foreground/70" /> Upcoming Appointments
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {upcomingAppointments.length === 0 ? (
+              <p className="text-sm font-medium text-muted-foreground text-center py-8">No upcoming appointments scheduled.</p>
+            ) : (
+              <div className="space-y-3">
+                {upcomingAppointments.map((apt) => (
+                  <div key={apt.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-4 transition-all hover:border-border hover:bg-muted/30">
+                    <div>
+                      <p className="font-bold text-foreground">{apt.patient.firstName} {apt.patient.lastName}</p>
+                      <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                        {new Date(apt.appointmentDate).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })} at {apt.appointmentTime}
+                      </p>
+                    </div>
+                    <ChevronRight className="size-5 text-muted-foreground/50" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
 
+// ----------------------------------------------------------------------
+// PATIENT DASHBOARD
+// ----------------------------------------------------------------------
 async function PatientDashboard({ user }) {
   let patient = user?.patient || null;
   let upcomingAppointments = [], recentRecords = [], latestPrescription = null, unpaidBills = [];
@@ -139,40 +304,159 @@ async function PatientDashboard({ user }) {
   }
 
   return (
-    <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold tracking-tight">Welcome{user?.firstName ? `, ${user.firstName}` : ""}</h1><p className="text-muted-foreground">Your health dashboard.</p></div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+          Welcome{user?.firstName ? `, ${user.firstName}` : ""}
+        </h1>
+        <p className="text-lg font-medium text-muted-foreground">Your personal health dashboard.</p>
+      </div>
 
       {!patient ? (
-        <Card><CardContent className="p-8 text-center"><p className="text-muted-foreground mb-4">Complete your patient profile to get started.</p><Link href="/patients/new"><Button>Register as Patient</Button></Link></CardContent></Card>
+        <Card className="shadow-hover border-border/40 rounded-[2rem] overflow-hidden">
+          <CardContent className="p-10 text-center flex flex-col items-center justify-center min-h-[300px] bg-gradient-to-b from-card to-primary/5">
+            <div className="bg-primary/10 p-5 rounded-full mb-6">
+              <UserCog className="size-10 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Complete Your Profile</h2>
+            <p className="text-muted-foreground font-medium mb-8 max-w-sm">
+              Please complete your patient profile to book appointments and access medical records.
+            </p>
+            <Link href="/complete-profile">
+              <Button className="gradient-primary h-12 px-8 rounded-xl font-bold text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                Complete Profile
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard title="Upcoming" value={String(upcomingAppointments.length)} description="Appointments scheduled" icon={CalendarDays} />
-            <StatCard title="Records" value={String(recentRecords.length)} description="Medical records" icon={FileText} />
-            <StatCard title="Prescriptions" value={latestPrescription ? "1" : "0"} description="Latest prescription" icon={Pill} />
-            <StatCard title="Unpaid Bills" value={String(unpaidBills.length)} description="Pending payments" icon={Receipt} />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard title="Upcoming Visits" value={String(upcomingAppointments.length)} description="Appointments scheduled" icon={CalendarDays} />
+            <StatCard title="Health Records" value={String(recentRecords.length)} description="Saved medical records" icon={FileText} />
+            <StatCard title="Prescriptions" value={latestPrescription ? "1" : "0"} description="Active prescriptions" icon={Pill} />
+            <StatCard title="Pending Bills" value={String(unpaidBills.length)} description="Invoices due" icon={Receipt} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <Link href="/appointments/new"><div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50"><Calendar className="size-4 text-primary" /><span className="text-sm font-medium">Book Appointment</span></div></Link>
-            <Link href="/medical-records"><div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50"><FileText className="size-4 text-primary" /><span className="text-sm font-medium">Medical History</span></div></Link>
-            <Link href="/billing"><div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50"><Receipt className="size-4 text-primary" /><span className="text-sm font-medium">View Bills</span></div></Link>
+            {[
+              { title: "Book Appointment", href: "/appointments/new", icon: Calendar, bg: "bg-blue-50 dark:bg-blue-900/20", color: "text-blue-600" },
+              { title: "Medical History", href: "/medical-records", icon: FileText, bg: "bg-teal-50 dark:bg-teal-900/20", color: "text-teal-600" },
+              { title: "View Bills", href: "/billing", icon: Receipt, bg: "bg-amber-50 dark:bg-amber-900/20", color: "text-amber-600" }
+            ].map((a) => (
+              <Link key={a.title} href={a.href} className="group block">
+                <div className="flex items-center gap-4 rounded-2xl border border-border/50 bg-card p-4 transition-all duration-300 hover:shadow-hover hover:-translate-y-1 hover:border-border">
+                  <div className={`rounded-xl p-3 transition-transform duration-300 group-hover:scale-110 ${a.bg}`}>
+                    <a.icon className={`size-5 ${a.color}`} />
+                  </div>
+                  <span className="font-bold text-foreground">{a.title}</span>
+                </div>
+              </Link>
+            ))}
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card><CardHeader><CardTitle className="text-base">Upcoming Appointments</CardTitle></CardHeader><CardContent>
-              {upcomingAppointments.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No upcoming appointments. <Link href="/appointments/new" className="text-primary underline">Book one now</Link>.</p> : <div className="space-y-3">{upcomingAppointments.map((apt) => <div key={apt.id} className="flex items-center justify-between rounded-lg border p-2.5 text-sm"><div><p className="font-medium">Dr. {apt.doctor.user.firstName} {apt.doctor.user.lastName}</p><p className="text-xs text-muted-foreground">{apt.doctor.department.name}</p></div><Badge className="text-xs">{new Date(apt.appointmentDate).toLocaleDateString()}</Badge></div>)}</div>}
-            </CardContent></Card>
-            <Card><CardHeader><CardTitle className="text-base">Recent Medical Records</CardTitle></CardHeader><CardContent>
-              {recentRecords.length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">No medical records yet.</p> : <div className="space-y-3">{recentRecords.map((r) => <Link key={r.id} href={`/medical-records/${r.id}`} className="block"><div className="rounded-lg border p-2.5 text-sm hover:bg-muted/50"><p className="font-medium">{r.diagnosis || "No diagnosis"}</p><p className="text-xs text-muted-foreground">Dr. {r.doctor.user.firstName} {r.doctor.user.lastName}</p></div></Link>)}</div>}
-            </CardContent></Card>
-          </div>
+          <div className="grid gap-6 lg:grid-cols-2 items-start">
+            <div className="space-y-6">
+              <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <CalendarDays className="size-4 text-primary" /> Upcoming Appointments
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {upcomingAppointments.length === 0 ? (
+                    <div className="text-center py-6">
+                      <p className="text-sm font-medium text-muted-foreground mb-3">No upcoming appointments.</p>
+                      <Link href="/appointments/new">
+                        <Button variant="outline" size="sm" className="rounded-full font-bold">Book one now</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {upcomingAppointments.map((apt) => (
+                        <div key={apt.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-3.5 transition-all hover:border-primary/30 hover:shadow-sm">
+                          <div>
+                            <p className="font-bold text-foreground text-base">Dr. {apt.doctor.user.firstName} {apt.doctor.user.lastName}</p>
+                            <p className="text-xs font-semibold text-primary mt-0.5">{apt.doctor.department.name}</p>
+                          </div>
+                          <div className="text-right">
+                            <Badge className="font-bold bg-muted text-foreground border-border/60 mb-1">
+                              {new Date(apt.appointmentDate).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}
+                            </Badge>
+                            <p className="text-xs font-bold text-muted-foreground">{apt.appointmentTime}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-          {latestPrescription && (
-            <Card><CardHeader><CardTitle className="text-base">Latest Prescription</CardTitle></CardHeader><CardContent>
-              <div className="rounded-lg border p-4"><div className="flex items-center justify-between mb-2"><p className="font-medium">Dr. {latestPrescription.doctor.user.firstName} {latestPrescription.doctor.user.lastName}</p><Badge variant="secondary">{latestPrescription.items.length} med(s)</Badge></div><div className="space-y-1">{latestPrescription.items.map((item) => <div key={item.id} className="flex justify-between text-sm"><span className="font-medium">{item.medicineName}</span><span className="text-muted-foreground">{item.dosage} &bull; {item.frequency}</span></div>)}</div></div>
-            </CardContent></Card>
-          )}
+              {latestPrescription && (
+                <Card className="shadow-soft border-emerald-200 dark:border-emerald-900/50 rounded-3xl overflow-hidden bg-emerald-50/30 dark:bg-emerald-900/10">
+                  <CardHeader className="bg-emerald-100/50 dark:bg-emerald-900/30 border-b border-emerald-200/50 dark:border-emerald-800 pb-4">
+                    <CardTitle className="text-base font-bold flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
+                      <Pill className="size-4" /> Latest Prescription
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-background p-4">
+                      <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/40">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Prescribed By</p>
+                          <p className="font-bold text-foreground mt-0.5">Dr. {latestPrescription.doctor.user.firstName} {latestPrescription.doctor.user.lastName}</p>
+                        </div>
+                        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0 font-bold">
+                          {latestPrescription.items.length} med(s)
+                        </Badge>
+                      </div>
+                      <div className="space-y-3">
+                        {latestPrescription.items.map((item) => (
+                          <div key={item.id} className="flex justify-between items-center text-sm bg-muted/40 p-2.5 rounded-lg">
+                            <span className="font-bold text-foreground">{item.medicineName}</span>
+                            <span className="font-medium text-muted-foreground">{item.dosage} &bull; {item.frequency}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden h-full">
+              <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <FileText className="size-4 text-teal-600" /> Recent Medical Records
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                {recentRecords.length === 0 ? (
+                  <p className="text-sm font-medium text-muted-foreground text-center py-6">No medical records on file.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {recentRecords.map((r) => (
+                      <Link key={r.id} href={`/medical-records/${r.id}`} className="block group">
+                        <div className="rounded-xl border border-border/50 bg-background p-4 transition-all hover:border-teal-500/30 hover:bg-teal-50/50 dark:hover:bg-teal-900/10 hover:shadow-sm">
+                          <div className="flex items-start justify-between mb-2">
+                            <p className="font-bold text-foreground text-base line-clamp-1 group-hover:text-teal-600 transition-colors">
+                              {r.diagnosis || "General Consultation"}
+                            </p>
+                            <span className="text-xs font-bold text-muted-foreground whitespace-nowrap ml-3">
+                              {new Date(r.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                            <UserCog className="size-3.5" /> Dr. {r.doctor.user.firstName} {r.doctor.user.lastName}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>

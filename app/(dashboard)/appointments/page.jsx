@@ -30,7 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getAppointments, cancelAppointment, completeAppointment } from "@/actions/appointments";
-import { Plus, Search, MoreHorizontal, Eye, XCircle, CheckCircle } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Eye, XCircle, CheckCircle, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -94,9 +94,9 @@ export default function AppointmentsPage() {
 
   const statusVariant = (status) => {
     switch (status) {
-      case "SCHEDULED": return "default";
-      case "COMPLETED": return "default";
-      case "CANCELLED": return "secondary";
+      case "SCHEDULED": return "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-400 border-0";
+      case "COMPLETED": return "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 border-0";
+      case "CANCELLED": return "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 border-0";
       default: return "secondary";
     }
   };
@@ -109,8 +109,8 @@ export default function AppointmentsPage() {
         const p = row.original.patient;
         return (
           <div>
-            <p className="font-medium">{p.firstName} {p.lastName}</p>
-            <p className="text-xs text-muted-foreground">{p.phone}</p>
+            <p className="font-bold text-foreground">{p.firstName} {p.lastName}</p>
+            <p className="text-xs font-medium text-muted-foreground mt-0.5">{p.phone || "N/A"}</p>
           </div>
         );
       },
@@ -122,8 +122,8 @@ export default function AppointmentsPage() {
         const d = row.original.doctor;
         return (
           <div>
-            <p className="font-medium">Dr. {d.user.firstName} {d.user.lastName}</p>
-            <p className="text-xs text-muted-foreground">{d.department.name}</p>
+            <p className="font-bold text-foreground">Dr. {d.user.firstName} {d.user.lastName}</p>
+            <p className="text-xs font-medium text-primary mt-0.5">{d.department.name}</p>
           </div>
         );
       },
@@ -131,17 +131,18 @@ export default function AppointmentsPage() {
     {
       accessorKey: "appointmentDate",
       header: "Date",
-      cell: ({ row }) => format(new Date(row.original.appointmentDate), "MMM dd, yyyy"),
+      cell: ({ row }) => <span className="font-semibold text-muted-foreground">{format(new Date(row.original.appointmentDate), "MMM dd, yyyy")}</span>,
     },
     {
       accessorKey: "appointmentTime",
       header: "Time",
+      cell: ({ row }) => <span className="font-bold">{row.original.appointmentTime}</span>
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={statusVariant(row.original.status)}>{row.original.status}</Badge>
+        <Badge className={`px-2.5 py-0.5 font-bold shadow-none ${statusVariant(row.original.status)}`}>{row.original.status}</Badge>
       ),
     },
     {
@@ -149,21 +150,21 @@ export default function AppointmentsPage() {
       header: "",
       cell: ({ row }) => (
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground">
+          <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary outline-none">
             <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => router.push(`/appointments/${row.original.id}`)}>
-              <Eye className="mr-2 size-4" />
+          <DropdownMenuContent align="end" className="rounded-xl shadow-lg p-1">
+            <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => router.push(`/appointments/${row.original.id}`)}>
+              <Eye className="mr-2 size-4 text-primary" />
               View Details
             </DropdownMenuItem>
             {row.original.status === "SCHEDULED" && (
               <>
-                <DropdownMenuItem onClick={() => handleComplete(row.original.id)}>
-                  <CheckCircle className="mr-2 size-4" />
+                <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => handleComplete(row.original.id)}>
+                  <CheckCircle className="mr-2 size-4 text-emerald-500" />
                   Mark Completed
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setCancelId(row.original.id)} className="text-destructive">
+                <DropdownMenuItem className="font-medium cursor-pointer rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => setCancelId(row.original.id)}>
                   <XCircle className="mr-2 size-4" />
                   Cancel
                 </DropdownMenuItem>
@@ -176,64 +177,76 @@ export default function AppointmentsPage() {
   ];
 
   return (
-    <div>
+    <div className="animate-in fade-in zoom-in-95 duration-500">
       <PageHeader
         title="Appointments"
         description="Manage patient appointments and scheduling"
         breadcrumbs={[{ label: "Appointments" }]}
       >
         <Link href="/appointments/new">
-          <Button>
-            <Plus className="mr-2 size-4" />
+          <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
+            <Plus className="mr-2 size-5" />
             Book Appointment
           </Button>
         </Link>
       </PageHeader>
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search appointments..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
+      <div className="bg-card shadow-soft rounded-3xl border border-border/40 p-4 sm:p-6 mb-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search appointments..."
+              className="pl-11 h-12 rounded-xl bg-background/50 border-border/60 focus-visible:ring-primary/30 font-medium"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
+            <SelectTrigger className="w-[180px] h-12 rounded-xl bg-background/50 border-border/60 font-medium">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl shadow-lg">
+              <SelectItem value="all" className="font-medium">All Status</SelectItem>
+              <SelectItem value="SCHEDULED" className="font-medium">Scheduled</SelectItem>
+              <SelectItem value="COMPLETED" className="font-medium">Completed</SelectItem>
+              <SelectItem value="CANCELLED" className="font-medium">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="CANCELLED">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
+
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/60" />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border/50 overflow-hidden">
+            <DataTable columns={columns} data={appointments} pagination={pagination} onPageChange={setPage} />
+          </div>
+        )}
       </div>
 
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />
-          ))}
-        </div>
-      ) : (
-        <DataTable columns={columns} data={appointments} pagination={pagination} onPageChange={setPage} />
-      )}
-
       <Dialog open={!!cancelId} onOpenChange={() => setCancelId(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cancel Appointment</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to cancel this appointment? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCancelId(null)}>Keep Appointment</Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={cancelling}>
+        <DialogContent className="sm:rounded-3xl border-border/50 shadow-2xl p-0 overflow-hidden">
+          <div className="bg-red-50/50 dark:bg-red-900/10 p-6 border-b border-border/50 flex items-start gap-4">
+            <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-2xl">
+              <XCircle className="size-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-bold">Cancel Appointment</DialogTitle>
+              <DialogDescription className="mt-1 font-medium">Are you sure you want to cancel this appointment?</DialogDescription>
+            </div>
+          </div>
+          <div className="p-6 bg-background">
+            <p className="text-sm font-medium text-muted-foreground">
+              This action cannot be undone. The schedule will be freed up for other patients.
+            </p>
+          </div>
+          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10">
+            <Button variant="outline" className="rounded-xl h-11 font-semibold" onClick={() => setCancelId(null)}>Keep Appointment</Button>
+            <Button variant="destructive" className="rounded-xl h-11 font-bold shadow-md hover:shadow-lg transition-all" onClick={handleCancel} disabled={cancelling}>
               {cancelling ? "Cancelling..." : "Cancel Appointment"}
             </Button>
           </DialogFooter>

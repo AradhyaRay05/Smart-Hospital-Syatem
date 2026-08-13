@@ -17,30 +17,43 @@ export function Sidebar({ collapsed, onToggle }) {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r bg-card transition-all duration-300",
+        "flex h-screen flex-col border-r border-border/40 bg-card shadow-soft transition-all duration-300 relative z-30",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
-      <div className="flex h-16 items-center justify-between border-b px-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Activity className="size-6 text-primary" />
-          {!collapsed && <span className="text-lg font-bold">SHDS</span>}
+      {/* Sidebar Header & Brand */}
+      <div className="flex h-20 items-center justify-between border-b border-border/40 px-4">
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="gradient-primary rounded-xl p-2.5 shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
+            <Activity className="size-5 text-white" />
+          </div>
+          {!collapsed && (
+            <span className="text-xl font-extrabold tracking-tight text-foreground transition-opacity duration-300">
+              SHDS
+            </span>
+          )}
         </Link>
-        <Button variant="ghost" size="icon-sm" onClick={onToggle} className="hidden lg:flex">
-          <ChevronLeft className={cn("size-4 transition-transform", collapsed && "rotate-180")} />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onToggle} 
+          className="hidden lg:flex h-8 w-8 rounded-xl hover:bg-muted"
+        >
+          <ChevronLeft className={cn("size-4 transition-transform duration-300 text-muted-foreground", collapsed && "rotate-180")} />
         </Button>
       </div>
 
+      {/* Sidebar Navigation */}
       <ScrollArea className="flex-1 py-4">
         <nav className="space-y-6 px-3">
           {navigation.map((group) => (
             <div key={group.label}>
               {!collapsed && (
-                <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="mb-2 px-3 text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/80">
                   {group.label}
                 </p>
               )}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {group.items.map((item) => {
                   const isActive =
                     pathname === item.href ||
@@ -50,16 +63,19 @@ export function Sidebar({ collapsed, onToggle }) {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                        "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all duration-200",
                         isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                        collapsed && "justify-center px-2"
+                          ? "gradient-primary text-white shadow-md shadow-primary/20"
+                          : "text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:translate-x-0.5",
+                        collapsed && "justify-center px-2 hover:translate-x-0"
                       )}
                       title={collapsed ? item.title : undefined}
                     >
-                      <item.icon className="size-4 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className={cn(
+                        "size-5 shrink-0 transition-transform duration-200 group-hover:scale-110",
+                        isActive ? "text-white" : "text-muted-foreground group-hover:text-primary"
+                      )} />
+                      {!collapsed && <span className="truncate">{item.title}</span>}
                     </Link>
                   );
                 })}
