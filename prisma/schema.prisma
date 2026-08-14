@@ -73,6 +73,11 @@ model User {
   createdCodes RegistrationCode[] @relation("CreatedBy")
   usedCode     RegistrationCode?  @relation("UsedBy")
   otps         OtpCode[]
+  bedUpdates         Bed[]                   @relation("BedUpdatedBy")
+  bedLogs            BedStatusLog[]          @relation("BedLogChangedBy")
+  assignedComplaints Complaint[]             @relation("ComplaintAssignedTo")
+  resolvedComplaints Complaint[]             @relation("ComplaintResolvedBy")
+  escalationLogs     ComplaintEscalationLog[] @relation("EscalationTriggeredBy")
 }
 
 model OtpCode {
@@ -97,7 +102,9 @@ model Department {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  doctors Doctor[]
+  doctors    Doctor[]
+  wards      Ward[]
+  complaints Complaint[]
 }
 
 model Doctor {
@@ -117,6 +124,7 @@ model Doctor {
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
   prescriptions  Prescription[]
+  complaints     Complaint[]
 }
 
 model Patient {
@@ -137,6 +145,8 @@ model Patient {
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
   bills          Bill[]
+  beds           Bed[]
+  complaints     Complaint[]
 }
 
 model Appointment {
@@ -233,4 +243,178 @@ model RegistrationCode {
 
   createdBy User   @relation("CreatedBy", fields: [createdById], references: [id])
   usedBy    User?  @relation("UsedBy", fields: [usedById], references: [id])
+}
+
+enum BedStatus {
+  VACANT
+  OCCUPIED
+  RESERVED
+  NEEDS_CLEANING
+}
+
+enum BedType {
+  GENERAL
+  SEMI_PRIVATE
+  PRIVATE
+  ICU
+  NICU
+  EMERGENCY
+  MATERNITY
+}
+
+enum GenderWard {
+  MALE
+  FEMALE
+  MIXED
+}
+
+model Ward {
+  id           String     @id @default(cuid())
+  name         String     @unique
+  floor        Int
+  departmentId String
+  genderWard   GenderWard @default(MIXED)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  department Department @relation(fields: [departmentId], references: [id])
+  beds       Bed[]
+}
+
+model Bed {
+  id              String    @id @default(cuid())
+  bedNumber       String
+  wardId          String
+  bedType         BedType   @default(GENERAL)
+  status          BedStatus @default(VACANT)
+  patientId       String?
+  notes           String?
+  statusUpdatedAt DateTime  @default(now())
+  updatedById     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  ward      Ward           @relation(fields: [wardId], references: [id], onDelete: Cascade)
+  patient   Patient?       @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  updatedBy User?          @relation("BedUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  statusLog BedStatusLog[]
+
+  @@unique([wardId, bedNumber])
+}
+
+model BedStatusLog {
+  id             String    @id @default(cuid())
+  bedId          String
+  previousStatus BedStatus
+  newStatus      BedStatus
+  changedById    String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+
+  bed       Bed   @relation(fields: [bedId], references: [id], onDelete: Cascade)
+  changedBy User? @relation("BedLogChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+}
+
+enum ComplaintType {
+  COMPLAINT
+  FEEDBACK
+  COMPLIMENT
+  SUGGESTION
+}
+
+enum ComplaintCategory {
+  STAFF_BEHAVIOR
+  WAIT_TIME
+  CLEANLINESS
+  BILLING_ISSUE
+  TREATMENT_QUALITY
+  FACILITY_AMENITIES
+  MEDICATION_ERROR
+  OTHER
+}
+
+enum ComplaintSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ComplaintStatus {
+  SUBMITTED
+  ASSIGNED
+  UNDER_INVESTIGATION
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+enum EscalationLevel {
+  LEVEL_1_DEPT_HEAD
+  LEVEL_2_ADMIN
+  LEVEL_3_DIRECTOR
+}
+
+model Complaint {
+  id                String            @id @default(cuid())
+  ticketNumber      String            @unique
+  type              ComplaintType     @default(COMPLAINT)
+  category          ComplaintCategory
+  severity          ComplaintSeverity @default(MEDIUM)
+  status            ComplaintStatus   @default(SUBMITTED)
+  escalationLevel   EscalationLevel   @default(LEVEL_1_DEPT_HEAD)
+
+  title             String
+  description       String
+  location          String?
+
+  isAnonymous       Boolean           @default(false)
+  patientName       String?
+  patientPhone      String?
+  patientEmail      String?
+  patientId         String?
+
+  departmentId      String
+  doctorId          String?
+
+  assignedToId      String?
+  resolvedById      String?
+
+  resolutionSummary String?
+  actionTaken       String?
+  resolvedAt        DateTime?
+
+  slaDeadline       DateTime
+  lastEscalatedAt   DateTime?
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  department        Department        @relation(fields: [departmentId], references: [id])
+  doctor            Doctor?           @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  patient           Patient?          @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  assignedTo        User?             @relation("ComplaintAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  resolvedBy        User?             @relation("ComplaintResolvedBy", fields: [resolvedById], references: [id], onDelete: SetNull)
+  escalationLogs    ComplaintEscalationLog[]
+
+  @@index([departmentId])
+  @@index([status])
+  @@index([escalationLevel])
+  @@index([slaDeadline])
+}
+
+model ComplaintEscalationLog {
+  id             String          @id @default(cuid())
+  complaintId    String
+  fromLevel      EscalationLevel
+  toLevel        EscalationLevel
+  triggerReason  String
+  actionNote     String?
+  triggeredById  String?
+  createdAt      DateTime        @default(now())
+
+  complaint      Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  triggeredBy    User?           @relation("EscalationTriggeredBy", fields: [triggeredById], references: [id], onDelete: SetNull)
+
+  @@index([complaintId])
 }
