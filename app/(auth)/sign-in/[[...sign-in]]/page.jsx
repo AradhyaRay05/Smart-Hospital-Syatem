@@ -232,7 +232,7 @@ function SignInForm() {
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-sm font-semibold text-foreground/80">Password</Label>
-                    <Link href="#" className="text-xs font-medium text-primary hover:underline">Forgot password?</Link>
+                    <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">Forgot password?</Link>
                   </div>
                   <div className="relative">
                     <Input
