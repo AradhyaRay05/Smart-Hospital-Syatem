@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getAppointmentById, cancelAppointment, completeAppointment } from "@/actions/appointments";
+import { useRole } from "@/hooks/use-role";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { Loader2, XCircle, CheckCircle, UserCog, Users, Calendar, FileText, Arro
 export default function AppointmentDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const { isPatient } = useRole();
   const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -91,9 +93,11 @@ export default function AppointmentDetailPage() {
         >
           {appointment.status === "SCHEDULED" && (
             <div className="flex gap-3">
-              <Button onClick={handleComplete} disabled={actionLoading} className="gradient-accent border-0 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
-                <CheckCircle className="mr-2 size-4" /> Mark Complete
-              </Button>
+              {!isPatient && (
+                <Button onClick={handleComplete} disabled={actionLoading} className="gradient-accent border-0 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
+                  <CheckCircle className="mr-2 size-4" /> Mark Complete
+                </Button>
+              )}
               <Button variant="destructive" onClick={handleCancel} disabled={actionLoading} className="rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
                 <XCircle className="mr-2 size-4" /> Cancel
               </Button>

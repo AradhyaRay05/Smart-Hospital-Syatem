@@ -30,12 +30,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getAppointments, cancelAppointment, completeAppointment } from "@/actions/appointments";
+import { useRole } from "@/hooks/use-role";
 import { Plus, Search, MoreHorizontal, Eye, XCircle, CheckCircle, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function AppointmentsPage() {
   const router = useRouter();
+  const { isPatient } = useRole();
 
   const [appointments, setAppointments] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -160,10 +162,12 @@ export default function AppointmentsPage() {
             </DropdownMenuItem>
             {row.original.status === "SCHEDULED" && (
               <>
-                <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => handleComplete(row.original.id)}>
-                  <CheckCircle className="mr-2 size-4 text-emerald-500" />
-                  Mark Completed
-                </DropdownMenuItem>
+                {!isPatient && (
+                  <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => handleComplete(row.original.id)}>
+                    <CheckCircle className="mr-2 size-4 text-emerald-500" />
+                    Mark Completed
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem className="font-medium cursor-pointer rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => setCancelId(row.original.id)}>
                   <XCircle className="mr-2 size-4" />
                   Cancel
