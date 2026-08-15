@@ -133,7 +133,7 @@ export async function updateBedStatus(bedId, data) {
     return {
       success: true,
       message: `Bed ${newBedNumber} updated successfully`,
-      data: updatedBed,
+      data: { id: updatedBed.id, bedNumber: updatedBed.bedNumber, status: updatedBed.status },
       needsCleaningAlert,
     };
   } catch (error) {
@@ -302,7 +302,7 @@ export async function createWard(data) {
     });
 
     revalidatePath("/beds");
-    return { success: true, message: "Ward created successfully", data: ward };
+    return { success: true, message: "Ward created successfully", data: { id: ward.id, name: ward.name } };
   } catch (error) {
     if (error.message === "Unauthorized") return { success: false, message: "Unauthorized" };
     if (error.message === "Forbidden") return { success: false, message: "You do not have permission to create wards" };
@@ -340,7 +340,7 @@ export async function createBed(data) {
     revalidatePath("/beds");
     revalidatePath("/dashboard");
 
-    return { success: true, message: "Bed created successfully", data: bed };
+    return { success: true, message: "Bed created successfully", data: { id: bed.id, bedNumber: bed.bedNumber } };
   } catch (error) {
     if (error.message === "Unauthorized") return { success: false, message: "Unauthorized" };
     if (error.message === "Forbidden") return { success: false, message: "You do not have permission to create beds" };
