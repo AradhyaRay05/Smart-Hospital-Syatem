@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { FormSelect } from "@/components/shared/form-select";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Loader2, Printer, CheckCircle, Receipt, Building2, User, Stethoscope, ArrowLeft } from "lucide-react";
+import { Loader2, Printer, CheckCircle, Receipt, Building2, User, Stethoscope, ArrowLeft, IndianRupee, Activity } from "lucide-react";
 
 export default function BillDetailPage() {
   const router = useRouter();
@@ -70,11 +70,11 @@ export default function BillDetailPage() {
 
       <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden print:shadow-none print:border-0 print:rounded-none">
         {/* Invoice Header (Medical aesthetic) */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-8 border-b border-primary/10">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-8 border-b border-primary/10 print:bg-slate-50 print:[print-color-adjust:exact]">
           <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <div className="flex items-center gap-4">
-              <div className="bg-primary p-3 rounded-2xl shadow-lg shadow-primary/20">
-                <IndianRupee className="size-8 text-white" />
+              <div className="gradient-primary p-3 rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center text-white print:bg-sky-700 print:text-white print:[print-color-adjust:exact]">
+                <Activity className="size-8 text-white print:text-white" />
               </div>
               <div>
                 <h2 className="text-2xl font-extrabold tracking-tight">Hospital Invoice</h2>

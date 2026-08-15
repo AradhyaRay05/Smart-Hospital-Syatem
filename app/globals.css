@@ -130,3 +130,10 @@
     @apply bg-white/70 backdrop-blur-xl border border-white/40 dark:bg-slate-900/70 dark:border-slate-800/50;
   }
 }
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

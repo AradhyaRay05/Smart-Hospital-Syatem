@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Pencil, Loader2, Phone, Mail, MapPin, AlertCircle, Calendar, FileText, Receipt, ArrowLeft, CalendarDays } from "lucide-react";
+import { Pencil, Loader2, Phone, Mail, MapPin, AlertCircle, Calendar, FileText, Receipt, ArrowLeft, CalendarDays, IndianRupee } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
