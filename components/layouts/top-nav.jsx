@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bell,
@@ -14,6 +14,7 @@ import {
   IndianRupee,
   CheckCircle2,
   Sparkles,
+  Pill,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,56 +27,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRole } from "@/hooks/use-role";
+import { getUserNotifications } from "@/actions/notifications";
 import { toast } from "sonner";
-
-const initialNotifications = [
-  {
-    id: "1",
-    title: "SLA Grievance Alert",
-    desc: "Ticket TKT-KKTHX4 requires department head review.",
-    time: "10m ago",
-    unread: true,
-    href: "/feedback/manage",
-    icon: <AlertTriangle className="size-4 text-amber-500" />,
-    bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800",
-  },
-  {
-    id: "2",
-    title: "New Appointment Booked",
-    desc: "Patient Aradhya Ray scheduled for 10:00 AM.",
-    time: "1h ago",
-    unread: true,
-    href: "/appointments",
-    icon: <CalendarDays className="size-4 text-blue-500" />,
-    bg: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800",
-  },
-  {
-    id: "3",
-    title: "Bed Housekeeping Completed",
-    desc: "General Ward Bed A-02 is ready for patient allocation.",
-    time: "2h ago",
-    unread: false,
-    href: "/beds",
-    icon: <BedDouble className="size-4 text-emerald-500" />,
-    bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800",
-  },
-  {
-    id: "4",
-    title: "Invoice Processed",
-    desc: "Bill payment recorded for ₹990.",
-    time: "5h ago",
-    unread: false,
-    href: "/billing",
-    icon: <IndianRupee className="size-4 text-teal-500" />,
-    bg: "bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800",
-  },
-];
 
 export function TopNav({ onMenuToggle }) {
   const router = useRouter();
   const { user } = useRole();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await getUserNotifications();
+      if (res.success) {
+        setNotifications(res.data);
+      }
+    } catch (err) {
+      console.error("Fetch notifications error:", err);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() : "U";
   const unreadCount = notifications.filter((n) => n.unread).length;
@@ -100,7 +77,22 @@ export function TopNav({ onMenuToggle }) {
     setNotifications((prev) =>
       prev.map((item) => (item.id === n.id ? { ...item, unread: false } : item))
     );
-    router.push(n.href);
+    if (n.href) router.push(n.href);
+  };
+
+  const getIconForType = (type) => {
+    switch (type) {
+      case "appointment":
+        return <CalendarDays className="size-4 text-blue-500" />;
+      case "prescription":
+        return <Pill className="size-4 text-purple-500" />;
+      case "billing":
+        return <IndianRupee className="size-4 text-teal-500" />;
+      case "feedback":
+        return <AlertTriangle className="size-4 text-amber-500" />;
+      default:
+        return <CheckCircle2 className="size-4 text-primary" />;
+    }
   };
 
   return (
@@ -158,30 +150,37 @@ export function TopNav({ onMenuToggle }) {
             </div>
 
             <div className="space-y-1 max-h-80 overflow-y-auto py-1">
-              {notifications.map((n) => (
-                <DropdownMenuItem
-                  key={n.id}
-                  onClick={() => handleNotificationClick(n)}
-                  className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors border ${
-                    n.unread
-                      ? `${n.bg} font-semibold`
-                      : "border-transparent hover:bg-muted/60 text-muted-foreground"
-                  }`}
-                >
-                  <div className="p-2 rounded-xl bg-background shadow-xs shrink-0 mt-0.5">
-                    {n.icon}
-                  </div>
-                  <div className="flex-1 space-y-0.5 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-bold text-foreground truncate">{n.title}</p>
-                      <span className="text-[10px] text-muted-foreground shrink-0">{n.time}</span>
+              {notifications.length === 0 ? (
+                <div className="py-8 text-center space-y-1">
+                  <p className="text-xs font-bold text-muted-foreground">No new notifications</p>
+                  <p className="text-[11px] text-muted-foreground/70">You are all caught up!</p>
+                </div>
+              ) : (
+                notifications.map((n) => (
+                  <DropdownMenuItem
+                    key={n.id}
+                    onClick={() => handleNotificationClick(n)}
+                    className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors border ${
+                      n.unread
+                        ? "bg-primary/5 border-primary/20 font-semibold"
+                        : "border-transparent hover:bg-muted/60 text-muted-foreground"
+                    }`}
+                  >
+                    <div className="p-2 rounded-xl bg-background shadow-xs shrink-0 mt-0.5">
+                      {n.icon || getIconForType(n.type)}
                     </div>
-                    <p className="text-[11px] text-muted-foreground line-clamp-2 leading-tight">
-                      {n.desc}
-                    </p>
-                  </div>
-                </DropdownMenuItem>
-              ))}
+                    <div className="flex-1 space-y-0.5 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-bold text-foreground truncate">{n.title}</p>
+                        <span className="text-[10px] text-muted-foreground shrink-0">{n.time}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-tight">
+                        {n.desc}
+                      </p>
+                    </div>
+                  </DropdownMenuItem>
+                ))
+              )}
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
