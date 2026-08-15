@@ -78,7 +78,22 @@ export async function updateBedStatus(bedId, data) {
     }
 
     const previousStatus = bed.status;
-    const newStatus = data.status;
+    const newStatus = data.status || bed.status;
+    const newBedNumber = data.bedNumber ? data.bedNumber.trim() : bed.bedNumber;
+    const newBedType = data.bedType || bed.bedType;
+
+    if (newBedNumber !== bed.bedNumber) {
+      const duplicate = await prisma.bed.findFirst({
+        where: {
+          wardId: bed.wardId,
+          bedNumber: newBedNumber,
+          id: { not: bedId },
+        },
+      });
+      if (duplicate) {
+        return { success: false, message: `Bed number '${newBedNumber}' already exists in this ward` };
+      }
+    }
 
     // If marking as occupied, patientId should be provided
     const patientId = newStatus === "OCCUPIED" ? (data.patientId || null) : null;
@@ -87,6 +102,8 @@ export async function updateBedStatus(bedId, data) {
     const updatedBed = await prisma.bed.update({
       where: { id: bedId },
       data: {
+        bedNumber: newBedNumber,
+        bedType: newBedType,
         status: newStatus,
         patientId,
         notes: data.notes || null,
@@ -95,16 +112,18 @@ export async function updateBedStatus(bedId, data) {
       },
     });
 
-    // Create audit log
-    await prisma.bedStatusLog.create({
-      data: {
-        bedId,
-        previousStatus,
-        newStatus,
-        changedById: user.id,
-        notes: data.notes || null,
-      },
-    });
+    // Create audit log if status changed
+    if (previousStatus !== newStatus) {
+      await prisma.bedStatusLog.create({
+        data: {
+          bedId,
+          previousStatus,
+          newStatus,
+          changedById: user.id,
+          notes: data.notes || null,
+        },
+      });
+    }
 
     revalidatePath("/beds");
     revalidatePath("/dashboard");
@@ -113,7 +132,7 @@ export async function updateBedStatus(bedId, data) {
 
     return {
       success: true,
-      message: `Bed status updated to ${newStatus.replace("_", " ").toLowerCase()}`,
+      message: `Bed ${newBedNumber} updated successfully`,
       data: updatedBed,
       needsCleaningAlert,
     };
@@ -123,6 +142,31 @@ export async function updateBedStatus(bedId, data) {
     if (error.message === "Service temporarily unavailable") return { success: false, message: "Database connection error. Please try again." };
     console.error("Update bed status error:", error);
     return { success: false, message: "Failed to update bed status" };
+  }
+}
+
+export async function deleteSingleBed(bedId) {
+  try {
+    await guardAction("beds", "delete");
+
+    const bed = await prisma.bed.findUnique({ where: { id: bedId } });
+    if (!bed) {
+      return { success: false, message: "Bed not found" };
+    }
+
+    await prisma.bedStatusLog.deleteMany({ where: { bedId } });
+    await prisma.bed.delete({ where: { id: bedId } });
+
+    revalidatePath("/beds");
+    revalidatePath("/dashboard");
+
+    return { success: true, message: `Bed ${bed.bedNumber} deleted successfully` };
+  } catch (error) {
+    if (error.message === "Unauthorized") return { success: false, message: "Unauthorized" };
+    if (error.message === "Forbidden") return { success: false, message: "Only admins can delete beds" };
+    if (error.message === "Service temporarily unavailable") return { success: false, message: "Database connection error. Please try again." };
+    console.error("Delete single bed error:", error);
+    return { success: false, message: "Failed to delete bed" };
   }
 }
 

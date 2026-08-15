@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,10 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { updateBedStatus, getAvailablePatients } from "@/actions/beds";
+import { updateBedStatus, deleteSingleBed, getAvailablePatients } from "@/actions/beds";
 import { BED_STATUS_LABELS, BED_TYPE_LABELS } from "@/lib/constants";
 import { toast } from "sonner";
-import { BedDouble, User, ShieldCheck, Sparkles, Loader2, AlertTriangle } from "lucide-react";
+import { BedDouble, User, ShieldCheck, Sparkles, Loader2, AlertTriangle, Trash2 } from "lucide-react";
 
 const statusOptions = [
   {
@@ -61,10 +62,13 @@ const statusOptions = [
 ];
 
 function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
+  const [bedNumber, setBedNumber] = useState(bed.bedNumber || "");
+  const [bedType, setBedType] = useState(bed.bedType || "GENERAL");
   const [newStatus, setNewStatus] = useState(bed.status);
   const [patientId, setPatientId] = useState(bed.patientId || "");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [patients, setPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
 
@@ -108,8 +112,37 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
     };
   }, [bed.status]);
 
+  const handleDeleteBed = async () => {
+    if (!confirm(`Are you sure you want to delete Bed ${bed.bedNumber}? This action cannot be undone.`)) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteSingleBed(bed.id);
+      if (res.success) {
+        toast.success(res.message);
+        onStatusUpdated();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error("Failed to delete bed");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleSubmit = async () => {
-    if (newStatus === bed.status && patientId === (bed.patientId || "") && !notes) {
+    if (!bedNumber.trim()) {
+      toast.error("Bed number cannot be empty");
+      return;
+    }
+
+    if (
+      bedNumber.trim() === bed.bedNumber &&
+      bedType === bed.bedType &&
+      newStatus === bed.status &&
+      patientId === (bed.patientId || "") &&
+      !notes
+    ) {
       toast.info("No changes to save");
       return;
     }
@@ -117,6 +150,8 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
     setIsSubmitting(true);
     try {
       const result = await updateBedStatus(bed.id, {
+        bedNumber: bedNumber.trim(),
+        bedType,
         status: newStatus,
         patientId: newStatus === "OCCUPIED" ? patientId : "",
         notes,
@@ -128,7 +163,7 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
         // Housekeeping alert
         if (result.needsCleaningAlert) {
           toast.warning(
-            `🧹 Housekeeping Alert: Bed ${bed.bedNumber} in ${bed.ward?.name || "ward"} needs cleaning!`,
+            `🧹 Housekeeping Alert: Bed ${bedNumber} in ${bed.ward?.name || "ward"} needs cleaning!`,
             {
               duration: 8000,
               important: true,
@@ -141,7 +176,7 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("Failed to update bed status");
+      toast.error("Failed to update bed details");
       console.error("Update bed status error:", error);
     } finally {
       setIsSubmitting(false);
@@ -151,25 +186,58 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
+        <DialogTitle className="flex items-center gap-2 text-xl font-bold">
           <BedDouble className="h-5 w-5 text-primary" />
-          Update Bed {bed.bedNumber}
+          Manage Bed {bed.bedNumber}
         </DialogTitle>
         <DialogDescription>
-          {bed.ward?.name} • {BED_TYPE_LABELS[bed.bedType]} • Floor {bed.ward?.floor}
+          {bed.ward?.name} • Floor {bed.ward?.floor}
         </DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-5 py-2">
+      <div className="space-y-4 py-2">
+        {/* Bed Identifier & Category Edit */}
+        <div className="grid grid-cols-2 gap-3 pb-3 border-b border-border/40">
+          <div className="space-y-1.5">
+            <Label htmlFor="bed-number-input" className="text-xs font-bold">
+              Bed Name / Identifier
+            </Label>
+            <Input
+              id="bed-number-input"
+              value={bedNumber}
+              onChange={(e) => setBedNumber(e.target.value)}
+              placeholder="e.g. A2"
+              className="h-10 rounded-xl font-bold text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold">
+              Bed Category
+            </Label>
+            <Select value={bedType} onValueChange={setBedType}>
+              <SelectTrigger className="h-10 rounded-xl text-xs font-semibold">
+                <SelectValue placeholder="Category">
+                  {BED_TYPE_LABELS[bedType] || bedType}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(BED_TYPE_LABELS).map(([k, l]) => (
+                  <SelectItem key={k} value={k} label={l}>{l}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         {/* Current Status */}
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Current Status:</span>
-          <Badge variant="outline">{BED_STATUS_LABELS[bed.status]}</Badge>
+          <span className="text-muted-foreground text-xs">Current Status:</span>
+          <Badge variant="outline" className="font-semibold text-xs">{BED_STATUS_LABELS[bed.status]}</Badge>
         </div>
 
         {/* New Status Selection - Touch-friendly buttons */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium">New Status</Label>
+          <Label className="text-xs font-bold">New Status</Label>
           <div className="grid grid-cols-2 gap-2">
             {statusOptions.map((option) => (
               <button
@@ -185,7 +253,7 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
               >
                 {option.icon}
                 <div className="text-left">
-                  <p className="text-sm font-semibold">{option.label}</p>
+                  <p className="text-xs font-bold">{option.label}</p>
                   <p className="text-[10px] opacity-80">{option.description}</p>
                 </div>
               </button>
@@ -196,23 +264,23 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
         {/* Patient Selector (when Occupied) */}
         {newStatus === "OCCUPIED" && (
           <div className="space-y-2">
-            <Label htmlFor="patient-select" className="text-sm font-medium">
+            <Label htmlFor="patient-select" className="text-xs font-bold">
               Assign Patient
             </Label>
             {loadingPatients ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground p-3 border rounded-lg">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground p-3 border rounded-xl">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Loading patients...
               </div>
             ) : (
               <Select value={patientId} onValueChange={setPatientId}>
-                <SelectTrigger id="patient-select">
+                <SelectTrigger id="patient-select" className="h-10 rounded-xl text-xs font-medium">
                   <SelectValue placeholder="Select a patient (optional)" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">No patient assigned</SelectItem>
                   {patients.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={p.id} label={`${p.firstName} ${p.lastName}`}>
                       {p.firstName} {p.lastName} — {p.phone}
                     </SelectItem>
                   ))}
@@ -223,8 +291,8 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
         )}
 
         {/* Notes */}
-        <div className="space-y-2">
-          <Label htmlFor="bed-notes" className="text-sm font-medium">
+        <div className="space-y-1.5">
+          <Label htmlFor="bed-notes" className="text-xs font-bold">
             Notes (optional)
           </Label>
           <Textarea
@@ -233,13 +301,13 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="resize-none"
+            className="resize-none rounded-xl text-xs"
           />
         </div>
 
         {/* Housekeeping warning */}
         {newStatus === "NEEDS_CLEANING" && newStatus !== bed.status && (
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
+          <div className="flex items-start gap-2 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800">
             <AlertTriangle className="h-4 w-4 text-violet-600 dark:text-violet-400 mt-0.5 shrink-0" />
             <p className="text-xs text-violet-700 dark:text-violet-300">
               A housekeeping alert will be triggered when this bed is marked as needing cleaning.
@@ -248,24 +316,39 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
         )}
       </div>
 
-      <DialogFooter className="gap-2">
+      <DialogFooter className="flex flex-row items-center justify-between gap-2 pt-3 border-t border-border/40">
         <Button
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          id="cancel-bed-update"
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleDeleteBed}
+          disabled={isSubmitting || isDeleting}
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive h-10 rounded-xl gap-1.5 font-bold text-xs"
+          id="delete-single-bed-btn"
         >
-          Cancel
+          {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+          Delete Bed
         </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="gap-2"
-          id="submit-bed-update"
-        >
-          {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          Update Status
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting || isDeleting}
+            className="h-10 rounded-xl font-bold text-xs"
+            id="cancel-bed-update"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || isDeleting}
+            className="h-10 rounded-xl font-bold text-xs gap-2"
+            id="submit-bed-update"
+          >
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
+        </div>
       </DialogFooter>
     </>
   );
