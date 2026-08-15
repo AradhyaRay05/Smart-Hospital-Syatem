@@ -1,157 +1,182 @@
 # Smart Hospital Digitalization System (SHDS)
 
-A modern, cloud-native hospital management platform built with Next.js, Clerk, Prisma, and Neon PostgreSQL.
+A state-of-the-art, enterprise-grade digital healthcare platform built with **Next.js 16 (App Router & Turbopack)**, **Supabase PostgreSQL**, **Prisma 7 ORM**, **Zod**, **Resend**, and **Tailwind CSS 4**.
 
-## Overview
+---
 
-SHDS is a centralized digital healthcare platform that replaces manual hospital workflows with efficient digital processes. It supports four user roles (Administrator, Doctor, Receptionist, Patient) and covers the complete hospital workflow from patient registration to billing.
+## 🌟 Overview
 
-## Tech Stack
+**Smart Hospital Digitalization System (SHDS)** transforms traditional hospital management into a seamless, automated, and secure digital experience. Designed for high efficiency and intuitive patient care, SHDS supports **5 Granular Roles** (*Super Admin*, *Department Admin*, *Doctor*, *Receptionist*, *Patient*) and digitizes the full medical lifecycle from appointment scheduling to bed allocation, prescription issuing, grievance tracking, and invoice payment.
 
-| Category | Technology |
-|----------|-----------|
-| Framework | Next.js 16 (App Router) |
-| Language | JavaScript (ES6+) |
-| Styling | Tailwind CSS 4 |
-| UI Components | shadcn/ui |
-| Authentication | Clerk |
-| Database | Neon PostgreSQL |
-| ORM | Prisma 7 |
-| Forms | React Hook Form + Zod |
-| Tables | TanStack Table |
-| Icons | Lucide React |
-| Notifications | Sonner |
-| Deployment | Vercel |
+---
 
-## Features
+## 🛠 Tech Stack
 
-- **Authentication**: Clerk-powered login, registration, session management, role-based access
-- **Dashboard**: Live statistics, recent activity, quick actions
-- **Departments**: CRUD with search, filter, pagination
-- **Doctors**: Registration, department assignment, availability, profile
-- **Patients**: Registration, medical history, search, profile
-- **Appointments**: Booking, scheduling, status management, conflict prevention
-- **Medical Records**: Clinical notes, diagnosis, treatment, linked to appointments
-- **Prescriptions**: Dynamic medicine items, linked to medical records, printable
-- **Billing**: Invoice generation, payment tracking, printable invoices
+| Category | Technology | Description |
+| :--- | :--- | :--- |
+| **Framework** | Next.js 16 (App Router + Turbopack) | Server Components, Server Actions & Route Handlers |
+| **Database** | Supabase PostgreSQL | Scalable, high-performance cloud PostgreSQL |
+| **ORM & Driver** | Prisma 7 + `@prisma/adapter-pg` | Type-safe database client and migration manager |
+| **Styling** | Tailwind CSS 4 + `tw-animate-css` | Modern glassmorphism, responsive UI tokens & dark mode |
+| **UI Components** | Radix UI / shadcn/ui + Lucide Icons | Accessible, high-contrast UI design system |
+| **Authentication** | Custom JWT + Google OAuth + OTP | Secure HTTP-only cookies, password hashing (`bcryptjs`) |
+| **Email Delivery** | Resend API | Password reset flows & automated system emails |
+| **Validation** | Zod + React Hook Form | Type-safe runtime input validation & error feedback |
+| **Data Tables** | TanStack Table v8 | Dynamic sorting, filtering, searching & pagination |
+| **Notifications** | Sonner + Custom Event Dispatcher | Real-time toasts & persistent bell notifications |
 
-## Getting Started
+---
+
+## ✨ Key Features
+
+### 🔐 Authentication & Role-Based Access Control (RBAC)
+- **Secure Authentication**: Custom JWT authentication with HTTP-only cookie storage (`proxy.js` route protection).
+- **Google OAuth Integration**: One-click Google Sign-In with automated account linking.
+- **OTP Verification & Resend Password Reset**: Email verification codes and single-use password reset tokens with automated expiration.
+- **5 Granular Roles**:
+  - `SUPER_ADMIN`: Complete system oversight, global analytics, registration code generation.
+  - `ADMIN`: Department-level management, grievance escalation, staff oversight.
+  - `DOCTOR`: Clinical care, patient consultation notes, prescription issuance.
+  - `RECEPTIONIST`: Patient registration, appointment booking, billing payments.
+  - `PATIENT`: Appointment booking, medical record access, billing history, feedback submission.
+
+### 📅 Appointment Scheduling
+- **3-Step Interactive Booking Wizard**: Step-by-step patient selection, doctor selection, and date/time schedule selection.
+- **Categorized Time Slots**: Organized into **Morning**, **Afternoon**, and **Evening** slot groups.
+- **Past Time Guard**: Past time slots on the current day are automatically disabled, greyed out, and guarded server-side to prevent double/past bookings.
+
+### 🛏 Bed & Ward Management
+- Live bed availability tracking across General, Semi-Private, Private, ICU, and NICU wards.
+- Automated bed status logs (`VACANT`, `OCCUPIED`, `RESERVED`, `NEEDS_CLEANING`).
+
+### 📋 Grievances & Feedback System
+- Public Kiosk & authenticated feedback submission with SLA deadline tracking.
+- Automated multi-level escalation workflow for unresolved complaints (`LEVEL_1_DEPT_HEAD` to `LEVEL_3_SUPER_ADMIN`).
+
+### 🩺 Clinical Records & Prescriptions
+- Comprehensive medical records linked to patient consultation history.
+- Printable digital prescriptions with multi-medicine item management.
+
+### 💳 Billing & Printable Invoices
+- Automatic invoice generation for consultations and additional charges.
+- Payment tracking (`CASH`, `CARD`, `UPI`) with crisp, high-contrast printable PDF invoices (`@media print` color adjustments).
+
+### 🔔 Targeted Real-Time Notifications
+- Bell notification drawer with instant event dispatching for appointments, bills, prescriptions, and grievances.
+- `localStorage` read-state persistence to prevent duplicate notification alerts.
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 20.9+
-- npm
-- Git
+- **Node.js**: v20.9.0 or higher
+- **Package Manager**: `npm` (v10+)
+- **Database**: Supabase PostgreSQL project
 
 ### Installation
 
-```bash
-git clone <repository-url>
-cd smart-hospital-system
-npm install
-cp .env.example .env.local
-# Edit .env.local with your credentials
-npm run db:generate
-npm run db:migrate
-npm run dev
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/AradhyaRay05/Smart-Hospital-Syatem.git
+   cd smart-hospital-system
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root directory (refer to `.env.example`):
+   ```env
+   # Supabase Database Connections
+   DATABASE_URL="postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+
+   # Authentication Secrets
+   JWT_SECRET="your-secure-jwt-secret"
+   JWT_ALGORITHM="HS256"
+   JWT_EXPIRES_IN_MINUTES="12506"
+
+   # Google OAuth Credentials
+   GOOGLE_CLIENT_ID="your-google-client-id"
+   GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+   # Resend Email Configuration
+   RESEND_API_KEY="re_your_resend_api_key"
+   RESEND_FROM_EMAIL="Smart Hospital Digitalisation System <no-reply@yourdomain.com>"
+   PASSWORD_RESET_TOKEN_EXPIRES_MINUTES="5"
+
+   # App Configuration
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   SUPER_ADMIN_EMAIL="admin@shds.com"
+   ```
+
+4. **Initialize Database & Generate Prisma Client**:
+   ```bash
+   npm run db:push
+   npm run db:generate
+   ```
+
+5. **Run Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📜 Available Scripts
+
+| Script | Command | Description |
+| :--- | :--- | :--- |
+| `npm run dev` | `next dev` | Start development server with Turbopack |
+| `npm run build` | `next build` | Build production application bundle |
+| `npm run start` | `next start` | Launch production server |
+| `npm run lint` | `next lint` | Run ESLint static code analysis |
+| `npm run db:push` | `npx prisma db push` | Push Prisma schema directly to Supabase DB |
+| `npm run db:generate` | `npx prisma generate` | Rebuild type-safe Prisma Client |
+| `npm run db:studio` | `npx prisma studio` | Launch visual database GUI in browser |
+
+---
+
+## 📂 Project Architecture
+
+```
+smart-hospital-system/
+├── actions/                   # Next.js Server Actions (Auth, Appointments, Billing, etc.)
+├── app/                       # Next.js 16 App Router Routes
+│   ├── (auth)/                # Sign-In, Sign-Up, Forgot & Reset Password pages
+│   ├── (dashboard)/           # Protected Dashboard layout & feature modules
+│   │   ├── appointments/      # Appointment booking & calendar management
+│   │   ├── beds/              # Ward & Bed allocation
+│   │   ├── billing/           # Invoice generation & payment tracking
+│   │   ├── departments/       # Department CRUD
+│   │   ├── doctors/           # Doctor profiles & availability
+│   │   ├── feedback/          # Grievance kiosk & staff management dashboard
+│   │   ├── medical-records/   # Patient clinical records
+│   │   ├── patients/          # Patient onboarding & medical history
+│   │   └── prescriptions/     # Prescription management
+│   ├── api/                   # OAuth Callbacks & Webhook endpoints
+│   └── globals.css            # Tailwind 4 CSS tokens & @media print styles
+├── components/                # Reusable UI Components & Feature Modals
+│   ├── feedback/              # Grievance forms & management components
+│   ├── layouts/               # TopNav, Sidebar, Footer layout components
+│   ├── shared/                # PageHeader, FormSelect, StatCard components
+│   ├── tables/                # TanStack DataTable component
+│   └── ui/                    # shadcn/ui primitive components
+├── lib/                       # Core utilities (Auth JWT, Prisma Client, Guards, Resend)
+├── prisma/                    # Prisma Schema (`schema.prisma`) & migrations
+├── proxy.js                   # Next.js Edge Middleware for Route Protection
+├── requirements.txt           # Project dependency manifest
+├── Developer_Guide.md         # Comprehensive Developer Onboarding Guide
+└── README.md                  # System Documentation
 ```
 
-### Environment Variables
+---
 
-```env
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
-CLERK_SECRET_KEY="sk_test_..."
-CLERK_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
-NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/dashboard"
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/dashboard"
-```
+## 📄 License
 
-### Cloud Service Setup
-
-1. **Neon**: Create a project at [neon.tech](https://neon.tech) and copy the connection string
-2. **Clerk**: Create an application at [clerk.com](https://clerk.com) and copy the API keys
-3. **Vercel** (optional): Import from GitHub at [vercel.com](https://vercel.com)
-
-## Available Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run db:generate  # Generate Prisma client
-npm run db:migrate   # Run database migrations
-npm run db:push      # Push schema changes
-npm run db:studio    # Open Prisma Studio
-```
-
-## Project Structure
-
-```
-app/
-├── (auth)/                    # Sign-in, sign-up pages
-├── (dashboard)/               # Protected dashboard routes
-│   ├── dashboard/             # Live dashboard with stats
-│   ├── departments/           # Department management
-│   ├── doctors/               # Doctor management
-│   ├── patients/              # Patient management
-│   ├── appointments/          # Appointment scheduling
-│   ├── medical-records/       # Clinical records
-│   ├── prescriptions/         # Prescription management
-│   └── billing/               # Billing & invoicing
-└── api/webhook/clerk/         # Clerk user sync
-
-components/
-├── layouts/                   # Sidebar, TopNav, Breadcrumb
-├── shared/                    # Reusable components
-├── tables/                    # DataTable component
-└── ui/                        # shadcn/ui components
-
-actions/                       # Server actions
-lib/                           # Utilities, Prisma, validations
-prisma/                        # Database schema & migrations
-```
-
-## User Roles
-
-| Role | Description |
-|------|-------------|
-| Administrator | Full system access, manages hospital |
-| Doctor | Clinical operations, patient care |
-| Receptionist | Patient registration, appointments |
-| Patient | View own records, book appointments |
-
-## Database
-
-- **Platform**: Neon (managed PostgreSQL)
-- **ORM**: Prisma 7
-- **Models**: User, Department, Doctor, Patient, Appointment, MedicalRecord, Prescription, PrescriptionItem, Bill
-
-## Deployment
-
-The application is configured for deployment on Vercel:
-
-1. Push code to GitHub
-2. Import repository in Vercel
-3. Add environment variables
-4. Deploy
-
-Vercel automatically builds and deploys on every push to the main branch.
-
-## Version 2 Roadmap
-
-- Laboratory Management
-- Pharmacy Management
-- Inventory Management
-- Bed Management
-- Notification Center
-- Analytics Dashboard
-- Mobile Application
-- AI Integration
-
-## License
-
-This project is developed as part of the Xeta Labs Internship Program.
+Developed as part of the **Xeta Labs Internship Program**. All rights reserved.
