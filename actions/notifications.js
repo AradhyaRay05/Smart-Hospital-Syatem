@@ -4,6 +4,17 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 
+function safeFormat(dateVal, formatStr) {
+  try {
+    if (!dateVal) return "";
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return "";
+    return format(d, formatStr);
+  } catch {
+    return "";
+  }
+}
+
 export async function getUserNotifications() {
   try {
     const user = await getCurrentUser();
@@ -25,11 +36,13 @@ export async function getUserNotifications() {
         });
 
         for (const apt of appointments) {
+          const dateStr = safeFormat(apt.appointmentDate, "MMM d");
+          const timeStr = apt.appointmentTime ? ` at ${apt.appointmentTime}` : "";
           notifications.push({
             id: `apt-${apt.id}`,
             title: `Appointment ${apt.status.toLowerCase()}`,
-            desc: `With Dr. ${apt.doctor?.user?.firstName || ""} ${apt.doctor?.user?.lastName || ""} (${apt.doctor?.department?.name || "General"}) on ${format(new Date(apt.dateTime), "MMM d, h:mm a")}`,
-            time: format(new Date(apt.createdAt), "MMM d"),
+            desc: `With Dr. ${apt.doctor?.user?.firstName || ""} ${apt.doctor?.user?.lastName || ""} (${apt.doctor?.department?.name || "General"}) on ${dateStr}${timeStr}`,
+            time: safeFormat(apt.createdAt, "MMM d"),
             unread: apt.status === "SCHEDULED",
             href: "/appointments",
             type: "appointment",
@@ -49,7 +62,7 @@ export async function getUserNotifications() {
             id: `rx-${rx.id}`,
             title: "New Prescription Issued",
             desc: `Prescribed by Dr. ${rx.doctor?.user?.firstName || ""} ${rx.doctor?.user?.lastName || ""}`,
-            time: format(new Date(rx.createdAt), "MMM d"),
+            time: safeFormat(rx.createdAt, "MMM d"),
             unread: true,
             href: `/prescriptions/${rx.id}`,
             type: "prescription",
@@ -68,7 +81,7 @@ export async function getUserNotifications() {
             id: `bill-${b.id}`,
             title: `Invoice ${b.paymentStatus === "PAID" ? "Paid" : "Issued"}`,
             desc: `Amount: ₹${b.totalAmount.toFixed(2)} — Status: ${b.paymentStatus}`,
-            time: format(new Date(b.createdAt), "MMM d"),
+            time: safeFormat(b.createdAt, "MMM d"),
             unread: b.paymentStatus === "PENDING",
             href: `/billing/${b.id}`,
             type: "billing",
@@ -82,16 +95,18 @@ export async function getUserNotifications() {
         const appointments = await prisma.appointment.findMany({
           where: { doctorId: doctor.id },
           include: { patient: true },
-          orderBy: { dateTime: "desc" },
+          orderBy: { appointmentDate: "desc" },
           take: 8,
         });
 
         for (const apt of appointments) {
+          const dateStr = safeFormat(apt.appointmentDate, "MMM d");
+          const timeStr = apt.appointmentTime ? ` at ${apt.appointmentTime}` : "";
           notifications.push({
             id: `doc-apt-${apt.id}`,
             title: `Appointment ${apt.status.toLowerCase()}`,
-            desc: `Patient ${apt.patient.firstName} ${apt.patient.lastName} — ${format(new Date(apt.dateTime), "MMM d, h:mm a")}`,
-            time: format(new Date(apt.createdAt), "MMM d"),
+            desc: `Patient ${apt.patient?.firstName || ""} ${apt.patient?.lastName || ""} — ${dateStr}${timeStr}`,
+            time: safeFormat(apt.createdAt, "MMM d"),
             unread: apt.status === "SCHEDULED",
             href: "/appointments",
             type: "appointment",
@@ -110,7 +125,7 @@ export async function getUserNotifications() {
             id: `doc-cmp-${c.id}`,
             title: `Grievance Ticket ${c.ticketId}`,
             desc: `Subject: ${c.subject} (${c.status})`,
-            time: format(new Date(c.createdAt), "MMM d"),
+            time: safeFormat(c.createdAt, "MMM d"),
             unread: c.status !== "RESOLVED",
             href: "/feedback/staff",
             type: "feedback",
@@ -129,8 +144,8 @@ export async function getUserNotifications() {
         notifications.push({
           id: `adm-apt-${apt.id}`,
           title: "New Appointment Booked",
-          desc: `Patient ${apt.patient.firstName} ${apt.patient.lastName} with Dr. ${apt.doctor.user.firstName} ${apt.doctor.user.lastName}`,
-          time: format(new Date(apt.createdAt), "MMM d"),
+          desc: `Patient ${apt.patient?.firstName || ""} ${apt.patient?.lastName || ""} with Dr. ${apt.doctor?.user?.firstName || ""} ${apt.doctor?.user?.lastName || ""}`,
+          time: safeFormat(apt.createdAt, "MMM d"),
           unread: true,
           href: "/appointments",
           type: "appointment",
@@ -147,8 +162,8 @@ export async function getUserNotifications() {
         notifications.push({
           id: `adm-bill-${b.id}`,
           title: `Invoice ${b.paymentStatus}`,
-          desc: `₹${b.totalAmount.toFixed(2)} for ${b.patient.firstName} ${b.patient.lastName}`,
-          time: format(new Date(b.createdAt), "MMM d"),
+          desc: `₹${b.totalAmount.toFixed(2)} for ${b.patient?.firstName || ""} ${b.patient?.lastName || ""}`,
+          time: safeFormat(b.createdAt, "MMM d"),
           unread: false,
           href: `/billing/${b.id}`,
           type: "billing",
@@ -156,7 +171,6 @@ export async function getUserNotifications() {
       }
     }
 
-    // Sort by timestamp if available or keep top list
     return { success: true, data: notifications.slice(0, 10) };
   } catch (error) {
     console.error("getUserNotifications error:", error);

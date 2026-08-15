@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { requestPasswordReset } from "@/actions/auth-reset";
 import { Activity, Loader2, Eye, EyeOff, Phone, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +26,28 @@ function SignInForm() {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSubmitted, setResetSubmitted] = useState(false);
+
+  const handleRequestReset = async (e) => {
+    e.preventDefault();
+    if (!resetEmail || !resetEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    setResetLoading(true);
+    const res = await requestPasswordReset(resetEmail);
+    setResetLoading(false);
+    if (res.success) {
+      setResetSubmitted(true);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  };
 
   const startTimer = () => {
     setTimer(30);
@@ -232,7 +256,17 @@ function SignInForm() {
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-sm font-semibold text-foreground/80">Password</Label>
-                    <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">Forgot password?</Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResetEmail(email || "");
+                        setResetSubmitted(false);
+                        setResetModalOpen(true);
+                      }}
+                      className="text-xs font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0 outline-none"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
                   <div className="relative">
                     <Input
@@ -259,6 +293,92 @@ function SignInForm() {
               </form>
             )}
           </div>
+
+          <Dialog open={resetModalOpen} onOpenChange={setResetModalOpen}>
+            <DialogContent className="sm:max-w-md bg-card border-border/40 text-card-foreground rounded-3xl p-6 sm:p-8 shadow-2xl">
+              <div className="flex items-center justify-center gap-2.5 mb-2">
+                <div className="gradient-primary rounded-xl p-2 shadow-md">
+                  <Activity className="size-5 text-white" />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-foreground">SHDS</span>
+              </div>
+
+              {resetSubmitted ? (
+                <div className="text-center py-4 space-y-4 animate-in fade-in zoom-in-95">
+                  <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="size-8" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-foreground tracking-tight">Check your inbox</h3>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                    We sent a 5-minute password reset link to{" "}
+                    <span className="font-bold text-foreground">{resetEmail}</span>.
+                  </p>
+                  <Button
+                    type="button"
+                    className="w-full h-12 rounded-xl font-bold gradient-primary border-0 text-white shadow-md hover:shadow-lg transition-all mt-2"
+                    onClick={() => setResetModalOpen(false)}
+                  >
+                    Close Window
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div className="text-center space-y-1.5">
+                    <DialogTitle className="text-2xl font-extrabold text-foreground tracking-tight">
+                      Reset your password
+                    </DialogTitle>
+                    <DialogDescription className="text-sm font-medium text-muted-foreground">
+                      Enter your email and we will send a reset link.
+                    </DialogDescription>
+                  </div>
+
+                  <form onSubmit={handleRequestReset} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Email
+                      </Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          required
+                          placeholder="you@example.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          className="pl-10 h-12 rounded-xl border-border/60 bg-background/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={resetLoading}
+                      className="w-full h-12 rounded-xl gradient-primary border-0 font-bold text-base text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+                    >
+                      {resetLoading ? (
+                        <>
+                          <Loader2 className="mr-2 size-5 animate-spin" /> Sending Reset Link...
+                        </>
+                      ) : (
+                        "Send Reset Link"
+                      )}
+                    </Button>
+
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setResetModalOpen(false)}
+                        className="text-xs font-semibold text-primary hover:underline transition-colors bg-transparent border-0"
+                      >
+                        Back to sign in
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/50" /></div>

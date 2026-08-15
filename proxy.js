@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "shds-default-secret-change-in-production");
 const COOKIE_NAME = "shds-auth-token";
 
-const publicPaths = ["/", "/sign-in", "/sign-up", "/api/auth", "/forbidden"];
+const publicPaths = ["/", "/sign-in", "/sign-up", "/forgot-password", "/reset-password", "/api/auth", "/forbidden"];
 
 function isPublicPath(pathname) {
   return publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
