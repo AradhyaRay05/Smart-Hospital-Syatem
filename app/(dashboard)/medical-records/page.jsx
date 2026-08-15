@@ -15,12 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getMedicalRecords } from "@/actions/medical-records";
+import { useRole } from "@/hooks/use-role";
 import { Plus, Search, MoreHorizontal, Eye, FileText, Pill, CalendarClock, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function MedicalRecordsPage() {
   const router = useRouter();
+  const { isPatient, role } = useRole();
   const [records, setRecords] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,8 @@ export default function MedicalRecordsPage() {
   }, [search, page]);
 
   useEffect(() => { fetchRecords(); }, [fetchRecords]);
+
+  const canCreate = !isPatient && (role === "DOCTOR" || role === "ADMIN" || role === "SUPER_ADMIN");
 
   const columns = [
     {
@@ -119,12 +123,16 @@ export default function MedicalRecordsPage() {
             <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => router.push(`/medical-records/${row.original.id}`)}>
               <Eye className="mr-2 size-4 text-primary" /> View Details
             </DropdownMenuItem>
-            <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => router.push(`/medical-records/${row.original.id}/edit`)}>
-              <FileText className="mr-2 size-4 text-muted-foreground" /> Edit Record
-            </DropdownMenuItem>
-            <DropdownMenuItem className="font-medium cursor-pointer rounded-lg text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50 dark:focus:bg-indigo-900/30" onClick={() => router.push(`/prescriptions/new?medicalRecordId=${row.original.id}`)}>
-              <Pill className="mr-2 size-4" /> Add Prescription
-            </DropdownMenuItem>
+            {!isPatient && (
+              <>
+                <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => router.push(`/medical-records/${row.original.id}/edit`)}>
+                  <FileText className="mr-2 size-4 text-muted-foreground" /> Edit Record
+                </DropdownMenuItem>
+                <DropdownMenuItem className="font-medium cursor-pointer rounded-lg text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50 dark:focus:bg-indigo-900/30" onClick={() => router.push(`/prescriptions/new?medicalRecordId=${row.original.id}`)}>
+                  <Pill className="mr-2 size-4" /> Add Prescription
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -138,12 +146,14 @@ export default function MedicalRecordsPage() {
         description="View and manage patient clinical histories, diagnoses, and treatments"
         breadcrumbs={[{ label: "Medical Records" }]}
       >
-        <Link href="/medical-records/new">
-          <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
-            <Plus className="mr-2 size-5" />
-            Create Record
-          </Button>
-        </Link>
+        {canCreate && (
+          <Link href="/medical-records/new">
+            <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
+              <Plus className="mr-2 size-5" />
+              Create Record
+            </Button>
+          </Link>
+        )}
       </PageHeader>
 
       <div className="bg-card shadow-soft rounded-3xl border border-border/40 p-4 sm:p-6 mb-6">

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getBills, markBillPaid } from "@/actions/billing";
+import { useRole } from "@/hooks/use-role";
 import { FormSelect } from "@/components/shared/form-select";
 import { Plus, Search, MoreHorizontal, Eye, CheckCircle, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ import { format } from "date-fns";
 
 export default function BillingPage() {
   const router = useRouter();
+  const { isPatient, role } = useRole();
   const [bills, setBills] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,8 @@ export default function BillingPage() {
     if (result.success) { toast.success(result.message); fetchBills(); }
     else { toast.error(result.message); }
   };
+
+  const canCreate = !isPatient && (role === "ADMIN" || role === "SUPER_ADMIN" || role === "RECEPTIONIST");
 
   const columns = [
     {
@@ -104,7 +108,7 @@ export default function BillingPage() {
             <DropdownMenuItem className="font-medium cursor-pointer rounded-lg mb-1" onClick={() => router.push(`/billing/${row.original.id}`)}>
               <ReceiptText className="mr-2 size-4 text-primary" /> View Invoice
             </DropdownMenuItem>
-            {row.original.paymentStatus === "PENDING" && (
+            {!isPatient && row.original.paymentStatus === "PENDING" && (
               <DropdownMenuItem className="font-medium cursor-pointer rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-900/30" onClick={() => handleMarkPaid(row.original.id)}>
                 <CheckCircle className="mr-2 size-4" /> Mark as Paid
               </DropdownMenuItem>
@@ -118,11 +122,13 @@ export default function BillingPage() {
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500">
       <PageHeader title="Billing & Invoices" description="Manage patient invoices and process payments" breadcrumbs={[{ label: "Billing" }]}>
-        <Link href="/billing/new">
-          <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
-            <Plus className="mr-2 size-5" /> Generate Bill
-          </Button>
-        </Link>
+        {canCreate && (
+          <Link href="/billing/new">
+            <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
+              <Plus className="mr-2 size-5" /> Generate Bill
+            </Button>
+          </Link>
+        )}
       </PageHeader>
 
       <div className="bg-card shadow-soft rounded-3xl border border-border/40 p-4 sm:p-6 mb-6">

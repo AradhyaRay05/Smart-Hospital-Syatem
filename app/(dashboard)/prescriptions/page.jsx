@@ -15,12 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getPrescriptions } from "@/actions/prescriptions";
+import { useRole } from "@/hooks/use-role";
 import { Plus, Search, MoreHorizontal, Eye, Pill, UserRound, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function PrescriptionsPage() {
   const router = useRouter();
+  const { isPatient, role } = useRole();
   const [prescriptions, setPrescriptions] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,8 @@ export default function PrescriptionsPage() {
   }, [search, page]);
 
   useEffect(() => { fetchPrescriptions(); }, [fetchPrescriptions]);
+
+  const canCreate = !isPatient && (role === "DOCTOR" || role === "ADMIN" || role === "SUPER_ADMIN");
 
   const columns = [
     {
@@ -115,12 +119,14 @@ export default function PrescriptionsPage() {
         description="View and manage patient medication records and clinical instructions" 
         breadcrumbs={[{ label: "Prescriptions" }]} 
       >
-        <Link href="/prescriptions/new">
-          <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
-            <Plus className="mr-2 size-5" />
-            Create Prescription
-          </Button>
-        </Link>
+        {canCreate && (
+          <Link href="/prescriptions/new">
+            <Button className="gradient-primary h-11 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 border-0 font-bold px-6">
+              <Plus className="mr-2 size-5" />
+              Create Prescription
+            </Button>
+          </Link>
+        )}
       </PageHeader>
       
       <div className="bg-card shadow-soft rounded-3xl border border-border/40 p-4 sm:p-6 mb-6">
