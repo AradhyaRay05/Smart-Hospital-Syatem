@@ -15,7 +15,7 @@ export default function DashboardLayout({ children, role, user }) {
       <div className="flex h-screen overflow-hidden bg-background">
         
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block z-20 shadow-soft">
+        <div className="hidden lg:block z-20 shadow-soft h-screen shrink-0">
           <Sidebar
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

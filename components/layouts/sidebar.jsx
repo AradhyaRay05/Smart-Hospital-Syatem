@@ -19,14 +19,14 @@ export function Sidebar({ collapsed, onToggle }) {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-border/40 bg-card shadow-soft transition-all duration-300 relative z-30",
+        "flex h-screen max-h-screen flex-col border-r border-border/40 bg-card shadow-soft transition-all duration-300 relative z-30 overflow-hidden",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Sidebar Header & Brand */}
-      <div className="flex h-20 items-center justify-between border-b border-border/40 px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-border/40 px-4">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          <div className="gradient-primary rounded-xl p-2.5 shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
+          <div className="gradient-primary rounded-xl p-2 shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
             <Activity className="size-5 text-white" />
           </div>
           {!collapsed && (
@@ -46,8 +46,8 @@ export function Sidebar({ collapsed, onToggle }) {
       </div>
 
       {/* Sidebar Navigation */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className="space-y-6 px-3">
+      <ScrollArea className="flex-1 min-h-0 py-3">
+        <nav className="space-y-6 px-3 pb-16">
           {navigation.map((group) => (
             <div key={group.label}>
               {!collapsed && (
