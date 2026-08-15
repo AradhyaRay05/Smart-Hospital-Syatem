@@ -335,14 +335,14 @@ async function PatientDashboard({ user }) {
             <StatCard title="Upcoming Visits" value={String(upcomingAppointments.length)} description="Appointments scheduled" icon={CalendarDays} />
             <StatCard title="Health Records" value={String(recentRecords.length)} description="Saved medical records" icon={FileText} />
             <StatCard title="Prescriptions" value={latestPrescription ? "1" : "0"} description="Active prescriptions" icon={Pill} />
-            <StatCard title="Pending Bills" value={String(unpaidBills.length)} description="Invoices due" icon={Receipt} />
+            <StatCard title="Pending Bills" value={String(unpaidBills.length)} description="Invoices due" icon={IndianRupee} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
             {[
               { title: "Book Appointment", href: "/appointments/new", icon: Calendar, bg: "bg-blue-50 dark:bg-blue-900/20", color: "text-blue-600" },
               { title: "Medical History", href: "/medical-records", icon: FileText, bg: "bg-teal-50 dark:bg-teal-900/20", color: "text-teal-600" },
-              { title: "View Bills", href: "/billing", icon: Receipt, bg: "bg-amber-50 dark:bg-amber-900/20", color: "text-amber-600" }
+              { title: "View Bills", href: "/billing", icon: IndianRupee, bg: "bg-amber-50 dark:bg-amber-900/20", color: "text-amber-600" }
             ].map((a) => (
               <Link key={a.title} href={a.href} className="group block">
                 <div className="flex items-center gap-4 rounded-2xl border border-border/50 bg-card p-4 transition-all duration-300 hover:shadow-hover hover:-translate-y-1 hover:border-border">
@@ -443,7 +443,7 @@ async function PatientDashboard({ user }) {
                               {r.diagnosis || "General Consultation"}
                             </p>
                             <span className="text-xs font-bold text-muted-foreground whitespace-nowrap ml-3">
-                              {new Date(r.createdAt).toLocaleDateString()}
+                              {new Date(r.createdAt).toLocaleDateString("en-US")}
                             </span>
                           </div>
                           <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">

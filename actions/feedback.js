@@ -153,43 +153,49 @@ export async function getFeedbackDashboardData(filters = {}) {
   try {
     const { user, role } = await guardAction("feedback", "read");
 
-    const where = {};
+    const andConditions = [];
 
     if (filters.status && filters.status !== "all") {
-      where.status = filters.status;
+      andConditions.push({ status: filters.status });
     }
     if (filters.severity && filters.severity !== "all") {
-      where.severity = filters.severity;
+      andConditions.push({ severity: filters.severity });
     }
     if (filters.escalationLevel && filters.escalationLevel !== "all") {
-      where.escalationLevel = filters.escalationLevel;
+      andConditions.push({ escalationLevel: filters.escalationLevel });
     }
     if (filters.departmentId && filters.departmentId !== "all") {
-      where.departmentId = filters.departmentId;
+      andConditions.push({ departmentId: filters.departmentId });
     }
     if (filters.category && filters.category !== "all") {
-      where.category = filters.category;
+      andConditions.push({ category: filters.category });
     }
     if (filters.search) {
-      where.OR = [
-        { ticketNumber: { contains: filters.search, mode: "insensitive" } },
-        { title: { contains: filters.search, mode: "insensitive" } },
-        { description: { contains: filters.search, mode: "insensitive" } },
-        { patientName: { contains: filters.search, mode: "insensitive" } },
-      ];
+      andConditions.push({
+        OR: [
+          { ticketNumber: { contains: filters.search, mode: "insensitive" } },
+          { title: { contains: filters.search, mode: "insensitive" } },
+          { description: { contains: filters.search, mode: "insensitive" } },
+          { patientName: { contains: filters.search, mode: "insensitive" } },
+        ],
+      });
     }
 
     // Role-specific scoping if DOCTOR: view tickets in doctor's department or assigned
     if (role === "DOCTOR") {
       const doctor = await prisma.doctor.findUnique({ where: { userId: user.id } });
       if (doctor) {
-        where.OR = [
-          { departmentId: doctor.departmentId },
-          { doctorId: doctor.id },
-          { assignedToId: user.id },
-        ];
+        andConditions.push({
+          OR: [
+            { departmentId: doctor.departmentId },
+            { doctorId: doctor.id },
+            { assignedToId: user.id },
+          ],
+        });
       }
     }
+
+    const where = andConditions.length > 0 ? { AND: andConditions } : {};
 
     const [complaints, allCount, activeCount, resolvedCount, allDepartments] = await Promise.all([
       prisma.complaint.findMany({

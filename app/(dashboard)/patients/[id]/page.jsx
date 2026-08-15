@@ -139,7 +139,7 @@ export default function PatientDetailPage() {
             </Card>
             <Card className="shadow-sm border-border/40 rounded-3xl overflow-hidden bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/50">
               <CardContent className="p-5 flex flex-col items-center text-center">
-                <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-xl mb-3"><Receipt className="size-5 text-amber-600 dark:text-amber-400" /></div>
+                <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-xl mb-3"><IndianRupee className="size-5 text-amber-600 dark:text-amber-400" /></div>
                 <p className="text-3xl font-black text-amber-700 dark:text-amber-400">{patient._count.bills}</p>
                 <p className="text-xs font-bold uppercase tracking-wider text-amber-600/70 dark:text-amber-400/70 mt-1">Invoices</p>
               </CardContent>

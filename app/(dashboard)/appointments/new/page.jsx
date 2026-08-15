@@ -213,7 +213,7 @@ export default function NewAppointmentPage() {
                       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mt-4 animate-in fade-in zoom-in-95">
                         <p className="font-bold text-foreground">{selectedPatient.firstName} {selectedPatient.lastName}</p>
                         <p className="text-sm font-medium text-muted-foreground mt-1">
-                          {selectedPatient.gender} • DOB {new Date(selectedPatient.dateOfBirth).toLocaleDateString()}
+                          {selectedPatient.gender} • DOB {new Date(selectedPatient.dateOfBirth).toLocaleDateString("en-US")}
                           {selectedPatient.bloodGroup ? ` • ${selectedPatient.bloodGroup}` : ""}
                         </p>
                       </div>

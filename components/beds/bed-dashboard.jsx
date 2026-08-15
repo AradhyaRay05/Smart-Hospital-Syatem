@@ -267,7 +267,7 @@ export function BedDashboard({ initialData, userRole }) {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </div>
             <Clock className="h-3 w-3" />
-            <span>Updated {lastUpdated.toLocaleTimeString()}</span>
+            <span>Updated {lastUpdated.toLocaleTimeString("en-US")}</span>
           </div>
           <Button
             variant="outline"

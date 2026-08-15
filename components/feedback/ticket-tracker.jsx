@@ -218,7 +218,7 @@ export function TicketTracker({ initialCode = "" }) {
                 <div className="p-2.5 rounded-lg bg-muted/40 border space-y-0.5">
                   <span className="text-muted-foreground block">Submitted On</span>
                   <span className="font-semibold text-foreground">
-                    {new Date(ticket.createdAt).toLocaleDateString()} at {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(ticket.createdAt).toLocaleDateString("en-US")} at {new Date(ticket.createdAt).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </div>
@@ -244,7 +244,7 @@ export function TicketTracker({ initialCode = "" }) {
                     <span>{slaInfo.text}</span>
                   </div>
                   <span className="text-[11px] opacity-75 hidden sm:inline">
-                    Target: {new Date(ticket.slaDeadline).toLocaleString()}
+                    Target: {new Date(ticket.slaDeadline).toLocaleString("en-US")}
                   </span>
                 </div>
               )}
@@ -279,7 +279,7 @@ export function TicketTracker({ initialCode = "" }) {
                   )}
                   {ticket.resolvedAt && (
                     <span className="text-[10px] text-muted-foreground block pt-1">
-                      Resolved on {new Date(ticket.resolvedAt).toLocaleString()}
+                      Resolved on {new Date(ticket.resolvedAt).toLocaleString("en-US")}
                     </span>
                   )}
                 </div>
@@ -295,7 +295,7 @@ export function TicketTracker({ initialCode = "" }) {
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-foreground">{log.triggerReason}</span>
                         <span className="text-muted-foreground text-[10px]">
-                          {new Date(log.createdAt).toLocaleDateString()} at {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(log.createdAt).toLocaleDateString("en-US")} at {new Date(log.createdAt).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                       <Badge variant="outline" className="text-[10px]">

@@ -181,11 +181,13 @@ export function ComplaintForm({ departments, onTrackTicket }) {
             </Label>
             <Select value={departmentId} onValueChange={setDepartmentId}>
               <SelectTrigger id="dept-select" className="h-11">
-                <SelectValue placeholder="Select Department" />
+                <SelectValue placeholder="Select Department">
+                  {departments.find((d) => d.id === departmentId)?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id} label={d.name}>
                     {d.name}
                   </SelectItem>
                 ))}
@@ -199,11 +201,18 @@ export function ComplaintForm({ departments, onTrackTicket }) {
             </Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger id="category-select" className="h-11">
-                <SelectValue placeholder="Select Category" />
+                <SelectValue placeholder="Select Category">
+                  {COMPLAINT_CATEGORY_LABELS[category] ? (
+                    <div className="flex items-center gap-2">
+                      {categoryIcons[category]}
+                      <span>{COMPLAINT_CATEGORY_LABELS[category]}</span>
+                    </div>
+                  ) : null}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(COMPLAINT_CATEGORY_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
+                  <SelectItem key={key} value={key} label={label}>
                     <div className="flex items-center gap-2">
                       {categoryIcons[key]}
                       <span>{label}</span>

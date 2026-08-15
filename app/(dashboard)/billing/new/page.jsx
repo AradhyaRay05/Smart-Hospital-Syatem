@@ -68,7 +68,7 @@ export default function NewBillPage() {
       <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
         <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
           <CardTitle className="text-lg font-bold flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl text-primary"><Receipt className="size-5" /></div>
+            <div className="p-2 bg-primary/10 rounded-xl text-primary"><IndianRupee className="size-5" /></div>
             Invoice Details
           </CardTitle>
         </CardHeader>
@@ -102,16 +102,16 @@ export default function NewBillPage() {
               
               <div className="grid gap-6 sm:grid-cols-3">
                 <div className="space-y-2.5">
-                  <Label htmlFor="consultationFee" className="font-semibold">Consultation Fee ($) <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="consultationFee" className="font-semibold">Consultation Fee (₹) <span className="text-destructive">*</span></Label>
                   <Input id="consultationFee" type="number" min="0" step="0.01" className="h-11 rounded-xl bg-muted/30 focus-visible:ring-primary/30 text-lg font-medium" {...register("consultationFee")} />
                   {errors.consultationFee && <p className="text-sm font-medium text-destructive">{errors.consultationFee.message}</p>}
                 </div>
                 <div className="space-y-2.5">
-                  <Label htmlFor="additionalCharges" className="font-semibold">Additional Charges ($)</Label>
+                  <Label htmlFor="additionalCharges" className="font-semibold">Additional Charges (₹)</Label>
                   <Input id="additionalCharges" type="number" min="0" step="0.01" className="h-11 rounded-xl bg-muted/30 focus-visible:ring-primary/30 text-lg font-medium" {...register("additionalCharges")} />
                 </div>
                 <div className="space-y-2.5">
-                  <Label htmlFor="discount" className="font-semibold">Discount ($)</Label>
+                  <Label htmlFor="discount" className="font-semibold">Discount (₹)</Label>
                   <Input id="discount" type="number" min="0" step="0.01" className="h-11 rounded-xl bg-muted/30 focus-visible:ring-primary/30 text-lg font-medium" {...register("discount")} />
                 </div>
               </div>

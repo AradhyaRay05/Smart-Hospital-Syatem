@@ -71,7 +71,7 @@ export default function BillDetailPage() {
           <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <div className="flex items-center gap-4">
               <div className="bg-primary p-3 rounded-2xl shadow-lg shadow-primary/20">
-                <Receipt className="size-8 text-white" />
+                <IndianRupee className="size-8 text-white" />
               </div>
               <div>
                 <h2 className="text-2xl font-extrabold tracking-tight">Hospital Invoice</h2>

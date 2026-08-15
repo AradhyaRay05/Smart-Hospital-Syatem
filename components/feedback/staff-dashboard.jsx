@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +98,14 @@ export function StaffFeedbackDashboard({ initialData, userRole }) {
       setIsRefreshing(false);
     }
   }, [search, statusFilter, severityFilter, deptFilter, levelFilter]);
+
+  // Auto-refresh when any filter or search term changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      refreshData();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, statusFilter, severityFilter, deptFilter, levelFilter, refreshData]);
 
   const handleRunEscalation = async () => {
     setIsRunningEscalation(true);
@@ -266,12 +274,14 @@ export function StaffFeedbackDashboard({ initialData, userRole }) {
             {/* Department */}
             <Select value={deptFilter} onValueChange={setDeptFilter}>
               <SelectTrigger className="w-[160px] h-9 text-xs">
-                <SelectValue placeholder="Department" />
+                <SelectValue placeholder="Department">
+                  {deptFilter === "all" ? "All Departments" : departments.find((d) => d.id === deptFilter)?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
+                <SelectItem value="all" label="All Departments">All Departments</SelectItem>
                 {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  <SelectItem key={d.id} value={d.id} label={d.name}>{d.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -279,12 +289,14 @@ export function StaffFeedbackDashboard({ initialData, userRole }) {
             {/* Severity */}
             <Select value={severityFilter} onValueChange={setSeverityFilter}>
               <SelectTrigger className="w-[140px] h-9 text-xs">
-                <SelectValue placeholder="Severity" />
+                <SelectValue placeholder="Severity">
+                  {severityFilter === "all" ? "All Severities" : COMPLAINT_SEVERITY_LABELS[severityFilter]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Severities</SelectItem>
+                <SelectItem value="all" label="All Severities">All Severities</SelectItem>
                 {Object.entries(COMPLAINT_SEVERITY_LABELS).map(([k, l]) => (
-                  <SelectItem key={k} value={k}>{l}</SelectItem>
+                  <SelectItem key={k} value={k} label={l}>{l}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -292,25 +304,29 @@ export function StaffFeedbackDashboard({ initialData, userRole }) {
             {/* Status */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[150px] h-9 text-xs">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Status">
+                  {statusFilter === "all" ? "All Statuses" : COMPLAINT_STATUS_LABELS[statusFilter]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="all" label="All Statuses">All Statuses</SelectItem>
                 {Object.entries(COMPLAINT_STATUS_LABELS).map(([k, l]) => (
-                  <SelectItem key={k} value={k}>{l}</SelectItem>
+                  <SelectItem key={k} value={k} label={l}>{l}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             {/* Escalation Level */}
             <Select value={levelFilter} onValueChange={setLevelFilter}>
-              <SelectTrigger className="w-[170px] h-9 text-xs">
-                <SelectValue placeholder="Escalation Level" />
+              <SelectTrigger className="w-[190px] h-9 text-xs">
+                <SelectValue placeholder="Escalation Level">
+                  {levelFilter === "all" ? "All Authority Levels" : ESCALATION_LEVEL_LABELS[levelFilter]}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Authority Levels</SelectItem>
+                <SelectItem value="all" label="All Authority Levels">All Authority Levels</SelectItem>
                 {Object.entries(ESCALATION_LEVEL_LABELS).map(([k, l]) => (
-                  <SelectItem key={k} value={k}>{l}</SelectItem>
+                  <SelectItem key={k} value={k} label={l}>{l}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -394,7 +410,7 @@ export function StaffFeedbackDashboard({ initialData, userRole }) {
                           Reporter: {c.isAnonymous ? "Anonymous Patient" : c.patientName || "Walk-in"}
                         </span>
                         <span>•</span>
-                        <span>Submitted {new Date(c.createdAt).toLocaleDateString()}</span>
+                        <span>Submitted {new Date(c.createdAt).toLocaleDateString("en-US")}</span>
                       </div>
                     </div>
 

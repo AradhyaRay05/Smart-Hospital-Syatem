@@ -13,6 +13,8 @@ export function Sidebar({ collapsed, onToggle }) {
   const pathname = usePathname();
   const { role } = useRole();
   const navigation = getNavigationForRole(role);
+  const allHrefs = navigation.flatMap((group) => group.items.map((item) => item.href));
+  const hasExactMatch = allHrefs.includes(pathname);
 
   return (
     <aside
@@ -55,9 +57,10 @@ export function Sidebar({ collapsed, onToggle }) {
               )}
               <div className="space-y-1.5">
                 {group.items.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                  const isActive = hasExactMatch
+                    ? pathname === item.href
+                    : pathname === item.href ||
+                      (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
                   return (
                     <Link
                       key={item.href}
