@@ -10,6 +10,12 @@ A state-of-the-art, enterprise-grade digital healthcare platform built with **Ne
 
 ---
 
+## 📚 Documentation
+
+- **[Developer Guide](Developer_Guide.md)** — Comprehensive step-by-step developer onboarding, database setup, project architecture, and feature implementation handbook.
+
+---
+
 ## 🛠 Tech Stack
 
 | Category | Technology | Description |
