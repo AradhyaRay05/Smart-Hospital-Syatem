@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/components/shared/form-select";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import { Loader2, IndianRupee, Calculator, Receipt } from "lucide-react";
 
 const schema = z.object({
@@ -37,17 +38,48 @@ export default function NewBillPage() {
     defaultValues: { patientId: "", appointmentId: "", consultationFee: 0, additionalCharges: 0, discount: 0, paymentMethod: "" },
   });
 
+  const selectedPatientId = watch("patientId");
+  const selectedAppointmentId = watch("appointmentId");
   const consultationFee = watch("consultationFee") || 0;
   const additionalCharges = watch("additionalCharges") || 0;
   const discount = watch("discount") || 0;
   const total = parseFloat(consultationFee) + parseFloat(additionalCharges) - parseFloat(discount);
 
   useEffect(() => {
-    Promise.all([getAllPatients(), getAppointments({ status: "COMPLETED", limit: 100 })]).then(([p, a]) => {
-      if (p.success) setPatients(p.data);
-      if (a.success) setAppointments(a.data);
+    Promise.all([getAllPatients(), getAppointments({ limit: 200 })]).then(([p, a]) => {
+      if (p.success) setPatients(p.data || []);
+      if (a.success) setAppointments(a.data || []);
     });
   }, []);
+
+  // Filter appointments for the selected patient
+  const filteredAppointments = selectedPatientId
+    ? appointments.filter((a) => a.patientId === selectedPatientId)
+    : appointments;
+
+  const handlePatientSelect = (val) => {
+    setValue("patientId", val);
+    if (selectedAppointmentId) {
+      const currentApt = appointments.find((a) => a.id === selectedAppointmentId);
+      if (currentApt && currentApt.patientId !== val) {
+        setValue("appointmentId", "");
+      }
+    }
+  };
+
+  const handleAppointmentSelect = (val) => {
+    setValue("appointmentId", val);
+    const selectedApt = appointments.find((a) => a.id === val);
+    if (selectedApt) {
+      if (selectedApt.patientId && selectedApt.patientId !== selectedPatientId) {
+        setValue("patientId", selectedApt.patientId);
+      }
+      const defaultFee = selectedApt.doctor?.consultationFee || 500;
+      if (!consultationFee || consultationFee === 0) {
+        setValue("consultationFee", defaultFee);
+      }
+    }
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -84,8 +116,9 @@ export default function NewBillPage() {
               <div className="space-y-2.5">
                 <Label className="font-semibold">Patient <span className="text-destructive">*</span></Label>
                 <FormSelect 
+                  value={selectedPatientId}
                   options={patients.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }))} 
-                  onValueChange={(val) => setValue("patientId", val)} 
+                  onValueChange={handlePatientSelect} 
                   placeholder="Select patient" 
                 />
                 {errors.patientId && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.patientId.message}</p>}
@@ -93,9 +126,19 @@ export default function NewBillPage() {
               <div className="space-y-2.5">
                 <Label className="font-semibold">Appointment <span className="text-destructive">*</span></Label>
                 <FormSelect 
-                  options={appointments.map(a => ({ value: a.id, label: `${a.patient.firstName} - Dr. ${a.doctor.user.firstName}` }))} 
-                  onValueChange={(val) => setValue("appointmentId", val)} 
-                  placeholder="Select related appointment" 
+                  value={selectedAppointmentId}
+                  options={filteredAppointments.map((a) => {
+                    const patientName = `${a.patient?.firstName || ""} ${a.patient?.lastName || ""}`.trim();
+                    const doctorName = `Dr. ${a.doctor?.user?.firstName || ""} ${a.doctor?.user?.lastName || ""}`.trim();
+                    const dateStr = a.appointmentDate ? format(new Date(a.appointmentDate), "MMM d, yyyy") : "";
+                    const timeStr = a.appointmentTime ? ` at ${a.appointmentTime}` : "";
+                    return {
+                      value: a.id,
+                      label: `${patientName} — ${doctorName} (${dateStr}${timeStr})`,
+                    };
+                  })} 
+                  onValueChange={handleAppointmentSelect} 
+                  placeholder={selectedPatientId ? "Select patient's appointment" : "Select related appointment"} 
                 />
                 {errors.appointmentId && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.appointmentId.message}</p>}
               </div>
