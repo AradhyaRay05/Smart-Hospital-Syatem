@@ -73,6 +73,24 @@ export function BedDashboard({ initialData, userRole }) {
     setSelectedBed(null);
   };
 
+  const handleClearAllBeds = async () => {
+    if (!confirm("Are you sure you want to clear all bed and ward data?")) return;
+    setIsRefreshing(true);
+    try {
+      const res = await deleteAllBedData();
+      if (res.success) {
+        toast.success(res.message);
+        refreshData();
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error("Failed to clear bed data");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const canManageBeds = userRole === "ADMIN" || userRole === "SUPER_ADMIN" || userRole === "RECEPTIONIST" || userRole === "DOCTOR";
 
   if (!data || !data.floors || Object.keys(data.floors).length === 0) {
