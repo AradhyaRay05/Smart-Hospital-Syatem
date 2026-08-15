@@ -54,6 +54,20 @@ export async function getBedDashboardData() {
   }
 }
 
+export async function getDepartmentsForWard() {
+  try {
+    await guardAction("beds", "read");
+    const departments = await prisma.department.findMany({
+      where: { status: "ACTIVE" },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+    return { success: true, data: departments };
+  } catch {
+    return { success: false, data: [] };
+  }
+}
+
 export async function updateBedStatus(bedId, data) {
   try {
     const { user } = await guardAction("beds", "update");
@@ -251,6 +265,44 @@ export async function createWard(data) {
     if (error.message === "Service temporarily unavailable") return { success: false, message: "Database connection error. Please try again." };
     console.error("Create ward error:", error);
     return { success: false, message: "Failed to create ward" };
+  }
+}
+
+export async function createBed(data) {
+  try {
+    await guardAction("beds", "create");
+
+    const existing = await prisma.bed.findFirst({
+      where: {
+        wardId: data.wardId,
+        bedNumber: data.bedNumber.trim(),
+      },
+    });
+
+    if (existing) {
+      return { success: false, message: "A bed with this number already exists in this ward" };
+    }
+
+    const bed = await prisma.bed.create({
+      data: {
+        bedNumber: data.bedNumber.trim(),
+        wardId: data.wardId,
+        bedType: data.bedType || "GENERAL",
+        status: data.status || "VACANT",
+        notes: data.notes || null,
+      },
+    });
+
+    revalidatePath("/beds");
+    revalidatePath("/dashboard");
+
+    return { success: true, message: "Bed created successfully", data: bed };
+  } catch (error) {
+    if (error.message === "Unauthorized") return { success: false, message: "Unauthorized" };
+    if (error.message === "Forbidden") return { success: false, message: "You do not have permission to create beds" };
+    if (error.message === "Service temporarily unavailable") return { success: false, message: "Database connection error. Please try again." };
+    console.error("Create bed error:", error);
+    return { success: false, message: "Failed to create bed" };
   }
 }
 

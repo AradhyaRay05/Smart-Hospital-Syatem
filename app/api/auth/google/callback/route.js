@@ -37,9 +37,11 @@ export async function GET(req) {
       return NextResponse.redirect(new URL("/sign-in?error=no_email", req.url));
     }
 
-    let user = await prisma.user.findUnique({
-      where: { email: googleUser.email },
-      include: { patient: true },
+    const normalizedEmail = googleUser.email.toLowerCase().trim();
+
+    let user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: "insensitive" } },
+      include: { doctor: true, patient: true },
     });
 
     if (!user) {

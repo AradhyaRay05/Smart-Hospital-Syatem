@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getBedDashboardData } from "@/actions/beds";
+import { getBedDashboardData, deleteAllBedData, getDepartmentsForWard } from "@/actions/beds";
 import { BedStatsCards } from "./bed-stats-cards";
 import { BedGrid } from "./bed-grid";
 import { BedStatusDialog } from "./bed-status-dialog";
-import { SeedBedDataButton } from "./seed-bed-button";
+import { CreateBedDialog } from "./create-bed-dialog";
 import {
   Select,
   SelectContent,
@@ -15,13 +15,16 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { BED_TYPE_LABELS, BED_STATUS_LABELS, GENDER_WARD_LABELS } from "@/lib/constants";
-import { RefreshCw, Filter, Clock } from "lucide-react";
+import { RefreshCw, Filter, Clock, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function BedDashboard({ initialData, userRole }) {
   const [data, setData] = useState(initialData);
   const [selectedBed, setSelectedBed] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [departmentsList, setDepartmentsList] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -31,6 +34,12 @@ export function BedDashboard({ initialData, userRole }) {
   const [selectedBedType, setSelectedBedType] = useState("all");
   const [selectedGenderWard, setSelectedGenderWard] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+
+  useEffect(() => {
+    getDepartmentsForWard().then((res) => {
+      if (res.success) setDepartmentsList(res.data);
+    });
+  }, []);
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
@@ -64,6 +73,8 @@ export function BedDashboard({ initialData, userRole }) {
     setSelectedBed(null);
   };
 
+  const canManageBeds = userRole === "ADMIN" || userRole === "SUPER_ADMIN" || userRole === "RECEPTIONIST" || userRole === "DOCTOR";
+
   if (!data || !data.floors || Object.keys(data.floors).length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-6">
@@ -81,17 +92,29 @@ export function BedDashboard({ initialData, userRole }) {
           </div>
         </div>
         <div className="text-center space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">No Bed Data Yet</h3>
-          <p className="text-muted-foreground max-w-md">
-            Set up wards and beds to start tracking bed occupancy across your hospital.
-            {userRole === "ADMIN" || userRole === "SUPER_ADMIN"
-              ? " Click below to generate demo data."
-              : " Contact an administrator to set up bed data."}
+          <h3 className="text-xl font-semibold text-foreground">No Wards or Beds Registered</h3>
+          <p className="text-muted-foreground max-w-md text-sm">
+            All bed management tables are ready for actual hospital data. Register your real hospital wards and beds to start tracking occupancy.
           </p>
         </div>
-        {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
-          <SeedBedDataButton onSeeded={refreshData} />
-        )}
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={refreshData} className="gap-2 rounded-xl">
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </Button>
+          {canManageBeds && (
+            <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 font-bold rounded-xl shadow-soft">
+              <Plus className="h-4 w-4" /> Add Ward or Bed
+            </Button>
+          )}
+        </div>
+
+        <CreateBedDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          wards={data?.wards || []}
+          departments={departmentsList}
+          onCreated={refreshData}
+        />
       </div>
     );
   }
@@ -160,6 +183,41 @@ export function BedDashboard({ initialData, userRole }) {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Bed Management
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Real-time occupancy tracking and bed allocation across hospital wards.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {canManageBeds && (
+            <Button
+              size="sm"
+              onClick={() => setCreateDialogOpen(true)}
+              className="h-8 gap-1.5 font-bold shadow-soft"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Add Ward or Bed</span>
+            </Button>
+          )}
+          {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearAllBeds}
+              className="h-8 gap-1.5 text-destructive hover:bg-destructive/10 border-destructive/30"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Clear Bed Data</span>
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <BedStatsCards stats={data.stats} />
 
@@ -267,7 +325,7 @@ export function BedDashboard({ initialData, userRole }) {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </div>
             <Clock className="h-3 w-3" />
-            <span>Updated {lastUpdated.toLocaleTimeString("en-US")}</span>
+            <span suppressHydrationWarning>Updated {lastUpdated.toLocaleTimeString("en-US")}</span>
           </div>
           <Button
             variant="outline"
@@ -280,9 +338,6 @@ export function BedDashboard({ initialData, userRole }) {
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
-          {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
-            <SeedBedDataButton onSeeded={refreshData} compact />
-          )}
         </div>
       </div>
 
@@ -327,6 +382,15 @@ export function BedDashboard({ initialData, userRole }) {
           onStatusUpdated={handleStatusUpdated}
         />
       )}
+
+      {/* Create Ward or Bed Dialog */}
+      <CreateBedDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        wards={data?.wards || []}
+        departments={departmentsList}
+        onCreated={refreshData}
+      />
     </div>
   );
 }
