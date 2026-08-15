@@ -232,7 +232,11 @@ export function TopNav({ onMenuToggle }) {
           <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-xl border-border/40">
             <div className="px-3 py-2.5 mb-1 rounded-xl bg-muted/40 border border-border/30">
               <p className="text-sm font-extrabold text-foreground">{user?.firstName} {user?.lastName}</p>
-              <p className="text-xs font-semibold text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-xs font-semibold text-muted-foreground truncate">
+                {user?.email && !user.email.endsWith("@phone.local")
+                  ? user.email
+                  : user?.phone ? `+91 ${user.phone}` : "No email set"}
+              </p>
             </div>
             
             <DropdownMenuItem 

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FormSelect } from "@/components/shared/form-select";
-import { UserRound, Loader2, MapPin, CalendarDays, Activity, CheckCircle2 } from "lucide-react";
+import { UserRound, Loader2, MapPin, CalendarDays, Activity, CheckCircle2, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CompleteProfilePage() {
@@ -19,7 +19,7 @@ export default function CompleteProfilePage() {
     city: "",
     gender: "",
     dateOfBirth: "",
-    phone: "",
+    email: "",
     bloodGroup: "",
     emergencyContact: "",
   });
@@ -32,8 +32,8 @@ export default function CompleteProfilePage() {
     if (!form.firstName.trim()) next.firstName = "Enter full first name";
     if (!form.gender) next.gender = "Select gender";
     if (!form.dateOfBirth) next.dateOfBirth = "Enter date of birth";
-    if (form.phone && !/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, ""))) {
-      next.phone = "Enter valid 10-digit phone";
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      next.email = "Enter a valid email address";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -56,7 +56,11 @@ export default function CompleteProfilePage() {
       const data = await res.json();
       if (data.success) {
         toast.success("Profile completed");
-        router.push("/dashboard");
+        if (typeof window !== "undefined") {
+          window.location.href = "/dashboard";
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         toast.error(data.message || "Failed to save profile");
       }
@@ -138,19 +142,17 @@ export default function CompleteProfilePage() {
                 <Input value={form.city} onChange={(e) => setField("city", e.target.value)} placeholder="e.g. Mumbai" className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" />
               </div>
               <div className="space-y-2.5">
-                <Label className="font-semibold text-foreground/80">Phone Number</Label>
-                <div className="flex overflow-hidden rounded-xl border border-input focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all bg-background/50">
-                  <div className="flex items-center gap-1 bg-primary/5 px-4 text-sm font-bold text-primary border-r border-input">
-                    +91
-                  </div>
-                  <Input 
-                    value={form.phone} 
-                    onChange={(e) => setField("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} 
-                    placeholder="10-digit mobile" 
-                    className="h-12 rounded-none border-0 focus-visible:ring-0 bg-transparent" 
-                  />
-                </div>
-                {errors.phone && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.phone}</p>}
+                <Label className="flex items-center gap-1.5 font-semibold text-foreground/80">
+                  <Mail className="size-4 text-primary" /> Email Address
+                </Label>
+                <Input 
+                  type="email"
+                  value={form.email} 
+                  onChange={(e) => setField("email", e.target.value)} 
+                  placeholder="e.g. name@example.com" 
+                  className="h-12 rounded-xl bg-background/50 focus-visible:ring-primary/30" 
+                />
+                {errors.email && <p className="text-sm font-medium text-destructive animate-in slide-in-from-top-1">{errors.email}</p>}
               </div>
             </div>
 

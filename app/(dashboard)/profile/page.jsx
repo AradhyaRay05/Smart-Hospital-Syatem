@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Mail, Phone, MapPin, Calendar, Shield, IdCard, HeartPulse, Stethoscope, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
+import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
+
 export default async function ProfilePage() {
   let user = null;
 
@@ -35,9 +37,12 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-1 mb-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">My Profile</h1>
-        <p className="text-lg font-medium text-muted-foreground">Manage your account settings and personal information</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">My Profile</h1>
+          <p className="text-lg font-medium text-muted-foreground">Manage your account settings and personal information</p>
+        </div>
+        <EditProfileDialog user={user} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr] items-start">
@@ -65,7 +70,9 @@ export default async function ProfilePage() {
             <div className="w-full space-y-4 text-left mt-8 bg-muted/30 p-5 rounded-2xl border border-border/50">
               <div className="flex items-center gap-3.5">
                 <div className="p-2.5 bg-background rounded-xl shadow-sm text-muted-foreground"><Mail className="size-4" /></div>
-                <span className="font-bold text-sm truncate">{user.email || "—"}</span>
+                <span className="font-bold text-sm truncate">
+                  {user.email && !user.email.endsWith("@phone.local") ? user.email : "Not Provided"}
+                </span>
               </div>
               {user.phone && (
                 <div className="flex items-center gap-3.5">
