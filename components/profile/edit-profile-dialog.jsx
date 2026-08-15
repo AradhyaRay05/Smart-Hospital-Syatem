@@ -69,11 +69,13 @@ export function EditProfileDialog({ user, onUpdated }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="rounded-xl shadow-md gradient-primary border-0 text-white font-bold px-5 py-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
-          <Pencil className="mr-2 size-4" /> Edit Profile
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="rounded-xl shadow-md gradient-primary border-0 text-white font-bold px-5 py-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+            <Pencil className="mr-2 size-4" /> Edit Profile
+          </Button>
+        }
+      />
 
       <DialogContent className="max-w-xl rounded-3xl p-0 overflow-hidden shadow-2xl border-border/40">
         {/* Header */}
