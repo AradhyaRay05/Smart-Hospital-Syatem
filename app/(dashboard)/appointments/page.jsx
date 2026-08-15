@@ -233,24 +233,37 @@ export default function AppointmentsPage() {
       </div>
 
       <Dialog open={!!cancelId} onOpenChange={() => setCancelId(null)}>
-        <DialogContent className="sm:rounded-3xl border-border/50 shadow-2xl p-0 overflow-hidden">
-          <div className="bg-red-50/50 dark:bg-red-900/10 p-6 border-b border-border/50 flex items-start gap-4">
-            <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-2xl">
-              <XCircle className="size-6 text-red-600 dark:text-red-400" />
+        <DialogContent className="sm:max-w-md sm:rounded-3xl border-border/40 bg-card shadow-2xl p-0 overflow-hidden">
+          <div className="bg-red-50/80 dark:bg-red-950/30 p-6 border-b border-red-100/80 dark:border-red-900/30 flex items-start gap-4">
+            <div className="bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400 p-3 rounded-2xl shadow-xs">
+              <XCircle className="size-6" />
             </div>
-            <div>
-              <DialogTitle className="text-xl font-bold">Cancel Appointment</DialogTitle>
-              <DialogDescription className="mt-1 font-medium">Are you sure you want to cancel this appointment?</DialogDescription>
+            <div className="space-y-1 pr-6">
+              <DialogTitle className="text-xl font-extrabold text-foreground tracking-tight">Cancel Appointment</DialogTitle>
+              <DialogDescription className="text-sm font-medium text-muted-foreground leading-snug">Are you sure you want to cancel this appointment?</DialogDescription>
             </div>
           </div>
-          <div className="p-6 bg-background">
-            <p className="text-sm font-medium text-muted-foreground">
+          
+          <div className="p-6 bg-slate-50/80 dark:bg-slate-900/40">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
               This action cannot be undone. The schedule will be freed up for other patients.
             </p>
           </div>
-          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10">
-            <Button variant="outline" className="rounded-xl h-11 font-semibold" onClick={() => setCancelId(null)}>Keep Appointment</Button>
-            <Button variant="destructive" className="rounded-xl h-11 font-bold shadow-md hover:shadow-lg transition-all" onClick={handleCancel} disabled={cancelling}>
+
+          <DialogFooter className="p-5 border-t border-border/40 bg-card flex flex-row items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              className="rounded-full h-11 px-6 font-semibold border-slate-200/80 bg-slate-100/70 hover:bg-slate-200/80 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+              onClick={() => setCancelId(null)}
+            >
+              Keep Appointment
+            </Button>
+            <Button
+              variant="destructive"
+              className="rounded-full h-11 px-6 font-bold bg-red-100 text-red-600 hover:bg-red-200/80 dark:bg-red-950/60 dark:text-red-400 border border-red-200/80 dark:border-red-900/40 shadow-xs transition-all"
+              onClick={handleCancel}
+              disabled={cancelling}
+            >
               {cancelling ? "Cancelling..." : "Cancel Appointment"}
             </Button>
           </DialogFooter>
