@@ -115,6 +115,9 @@ export function ComplaintForm({ departments, onTrackTicket }) {
       if (res.success) {
         toast.success(res.message);
         setReceipt(res);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("refresh-notifications"));
+        }
         // Reset form
         setTitle("");
         setDescription("");

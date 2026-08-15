@@ -159,6 +159,9 @@ export default function NewAppointmentPage() {
     setLoading(false);
     if (result.success) {
       toast.success(result.message);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
       router.push("/appointments");
     } else {
       toast.error(result.message);

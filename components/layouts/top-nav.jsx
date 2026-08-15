@@ -41,7 +41,14 @@ export function TopNav({ onMenuToggle }) {
     try {
       const res = await getUserNotifications();
       if (res.success) {
-        setNotifications(res.data);
+        let readIds = new Set();
+        try {
+          readIds = new Set(JSON.parse(localStorage.getItem("shds_read_notifications") || "[]"));
+        } catch {}
+        const merged = res.data.map((item) =>
+          readIds.has(item.id) ? { ...item, unread: false } : item
+        );
+        setNotifications(merged);
       }
     } catch (err) {
       console.error("Fetch notifications error:", err);
@@ -52,6 +59,15 @@ export function TopNav({ onMenuToggle }) {
 
   useEffect(() => {
     fetchNotifications();
+
+    const interval = setInterval(fetchNotifications, 10000);
+    const handleCustomRefresh = () => fetchNotifications();
+    window.addEventListener("refresh-notifications", handleCustomRefresh);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("refresh-notifications", handleCustomRefresh);
+    };
   }, [fetchNotifications]);
 
   const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() : "U";
@@ -69,7 +85,14 @@ export function TopNav({ onMenuToggle }) {
   };
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    setNotifications((prev) => {
+      const updated = prev.map((n) => ({ ...n, unread: false }));
+      try {
+        const ids = updated.map((n) => n.id);
+        localStorage.setItem("shds_read_notifications", JSON.stringify(ids));
+      } catch {}
+      return updated;
+    });
     toast.success("All notifications marked as read");
   };
 
@@ -77,6 +100,13 @@ export function TopNav({ onMenuToggle }) {
     setNotifications((prev) =>
       prev.map((item) => (item.id === n.id ? { ...item, unread: false } : item))
     );
+    try {
+      const existing = JSON.parse(localStorage.getItem("shds_read_notifications") || "[]");
+      if (!existing.includes(n.id)) {
+        existing.push(n.id);
+        localStorage.setItem("shds_read_notifications", JSON.stringify(existing));
+      }
+    } catch {}
     if (n.href) router.push(n.href);
   };
 

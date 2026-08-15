@@ -43,8 +43,15 @@ export default function BillingPage() {
 
   const handleMarkPaid = async (id) => {
     const result = await markBillPaid(id, "CASH");
-    if (result.success) { toast.success(result.message); fetchBills(); }
-    else { toast.error(result.message); }
+    if (result.success) {
+      toast.success(result.message);
+      fetchBills();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
+    } else {
+      toast.error(result.message);
+    }
   };
 
   const canCreate = !isPatient && (role === "ADMIN" || role === "SUPER_ADMIN" || role === "RECEPTIONIST");

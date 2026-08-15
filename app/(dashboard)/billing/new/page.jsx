@@ -52,7 +52,13 @@ export default function NewBillPage() {
   const onSubmit = async (data) => {
     setLoading(true);
     const result = await createBill(data);
-    if (result.success) { toast.success(result.message); router.push("/billing"); }
+    if (result.success) {
+      toast.success(result.message);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
+      router.push("/billing");
+    }
     else { toast.error(result.message); }
     setLoading(false);
   };

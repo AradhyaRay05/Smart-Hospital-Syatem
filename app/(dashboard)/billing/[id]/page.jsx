@@ -33,6 +33,9 @@ export default function BillDetailPage() {
     if (result.success) {
       toast.success(result.message);
       setBill({ ...bill, paymentStatus: "PAID", paymentMethod: payMethod });
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
     } else { toast.error(result.message); }
   };
 

@@ -77,6 +77,9 @@ export default function AppointmentsPage() {
     if (result.success) {
       toast.success(result.message);
       fetchAppointments();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
     } else {
       toast.error(result.message);
     }
@@ -89,6 +92,9 @@ export default function AppointmentsPage() {
     if (result.success) {
       toast.success(result.message);
       fetchAppointments();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("refresh-notifications"));
+      }
     } else {
       toast.error(result.message);
     }
