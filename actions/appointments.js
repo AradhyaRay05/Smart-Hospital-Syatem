@@ -14,6 +14,15 @@ export async function createAppointment(data) {
       data.patientId = patient.id;
     }
 
+    // Validate that appointmentDate + appointmentTime is not in the past
+    const [hours, minutes] = data.appointmentTime.split(":").map(Number);
+    const appointmentDateTime = new Date(data.appointmentDate);
+    appointmentDateTime.setHours(hours, minutes, 0, 0);
+
+    if (appointmentDateTime < new Date()) {
+      return { success: false, message: "Cannot book appointments for past dates or times" };
+    }
+
     const existing = await prisma.appointment.findFirst({
       where: { doctorId: data.doctorId, appointmentDate: new Date(data.appointmentDate), appointmentTime: data.appointmentTime, status: "SCHEDULED" },
     });

@@ -27,10 +27,19 @@ import {
   UserRound,
 } from "lucide-react";
 
-const TIME_SLOTS = [
-  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "12:00", "12:30", "14:00", "14:30", "15:00", "15:30",
-  "16:00", "16:30", "17:00", "17:30",
+const SLOT_GROUPS = [
+  {
+    title: "Morning",
+    slots: ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"],
+  },
+  {
+    title: "Afternoon",
+    slots: ["12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
+  },
+  {
+    title: "Evening",
+    slots: ["17:00", "17:30", "18:00", "18:30", "19:00"],
+  },
 ];
 
 const STEPS = [
@@ -66,6 +75,24 @@ export default function NewAppointmentPage() {
     notes: "",
   });
   const [errors, setErrors] = useState({});
+
+  const isPastSlot = (slotTime) => {
+    if (!form.appointmentDate) return false;
+    const now = new Date();
+
+    const [year, month, day] = form.appointmentDate.split("-").map(Number);
+    const selectedDate = new Date(year, month - 1, day);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (selectedDate < today) return true;
+    if (selectedDate > today) return false;
+
+    // Selected date is TODAY - check if slot time has passed
+    const [h, m] = slotTime.split(":").map(Number);
+    const slotDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+
+    return slotDateTime < now;
+  };
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -319,27 +346,43 @@ export default function NewAppointmentPage() {
                   {errors.appointmentDate && <p className="text-sm font-semibold text-destructive">{errors.appointmentDate}</p>}
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-6">
                   <Label className="font-bold text-sm flex items-center gap-2">
                     <Clock3 className="size-4 text-primary" /> Select Time Slot <span className="text-destructive">*</span>
                   </Label>
-                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-                    {TIME_SLOTS.map((slot) => {
-                      const selected = form.appointmentTime === slot;
-                      return (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => setField("appointmentTime", slot)}
-                          className={`rounded-xl border-2 py-2.5 text-sm font-bold transition-all duration-200 ${
-                            selected ? "border-primary gradient-primary text-white shadow-md scale-105" : "border-border/40 bg-background hover:border-primary/40 hover:bg-primary/5 text-foreground"
-                          }`}
-                        >
-                          {formatSlot(slot)}
-                        </button>
-                      );
-                    })}
-                  </div>
+
+                  {SLOT_GROUPS.map((group) => {
+                    return (
+                      <div key={group.title} className="space-y-2.5">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                          {group.title}
+                        </h4>
+                        <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 md:grid-cols-7">
+                          {group.slots.map((slot) => {
+                            const selected = form.appointmentTime === slot;
+                            const isPast = isPastSlot(slot);
+                            return (
+                              <button
+                                key={slot}
+                                type="button"
+                                disabled={isPast}
+                                onClick={() => setField("appointmentTime", slot)}
+                                className={`rounded-full border py-2.5 px-4 text-sm font-bold transition-all duration-200 ${
+                                  isPast
+                                    ? "border-slate-200/50 bg-slate-100/40 text-slate-400/50 dark:bg-slate-800/30 dark:text-slate-600 cursor-not-allowed opacity-40 line-through select-none"
+                                    : selected
+                                    ? "border-primary gradient-primary text-white shadow-md scale-105"
+                                    : "border-slate-200/80 bg-slate-100/70 dark:bg-slate-800/40 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-primary/10 hover:border-primary/40"
+                                }`}
+                              >
+                                {formatSlot(slot)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                   {errors.appointmentTime && <p className="text-sm font-semibold text-destructive">{errors.appointmentTime}</p>}
                 </div>
 
