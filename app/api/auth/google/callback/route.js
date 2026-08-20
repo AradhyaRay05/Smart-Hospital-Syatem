@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { setAuthCookie } from "@/lib/auth";
+import { signToken } from "@/lib/auth/jwt";
 import { isSuperAdminEmail } from "@/lib/auth/super-admin";
 
+const COOKIE_NAME = "shds-auth-token";
+
 export async function GET(req) {
-  const code = req.nextUrl.searchParams.get("code");
-
-  if (!code) {
-    return NextResponse.redirect(new URL("/sign-in?error=no_code", req.url));
-  }
-
   try {
+    const url = new URL(req.url);
+    const code = url.searchParams.get("code");
+
+    if (!code) {
+      return NextResponse.redirect(new URL("/sign-in?error=no_code", req.url));
+    }
+
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || url.origin}/api/auth/google/callback`;
+
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -18,13 +23,14 @@ export async function GET(req) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID,
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+        redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }),
     });
 
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
+      console.error("Google OAuth token error:", tokenData);
       return NextResponse.redirect(new URL("/sign-in?error=token_failed", req.url));
     }
 
@@ -49,9 +55,9 @@ export async function GET(req) {
       user = await prisma.user.create({
         data: {
           email: googleUser.email,
-          firstName: googleUser.given_name,
-          lastName: googleUser.family_name,
-          imageUrl: googleUser.picture,
+          firstName: googleUser.given_name || "User",
+          lastName: googleUser.family_name || "",
+          imageUrl: googleUser.picture || null,
           role: isSuperAdmin ? "SUPER_ADMIN" : "PATIENT",
           profileComplete: true,
           ...(isSuperAdmin
@@ -72,14 +78,28 @@ export async function GET(req) {
       });
     }
 
-    await setAuthCookie(user.id, user.email, user.role, user.profileComplete);
+    const token = await signToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      profileComplete: !!user.profileComplete,
+    });
 
     const target =
       user.role === "PATIENT" && !user.profileComplete
         ? "/complete-profile"
         : "/dashboard";
 
-    return NextResponse.redirect(new URL(target, req.url));
+    const response = NextResponse.redirect(new URL(target, req.url));
+    response.cookies.set(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
     console.error("Google OAuth error:", error);
     return NextResponse.redirect(new URL("/sign-in?error=oauth_failed", req.url));
