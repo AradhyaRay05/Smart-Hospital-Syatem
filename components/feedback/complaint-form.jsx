@@ -148,7 +148,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Type Selection */}
         <div className="space-y-2">
-          <Label className="text-sm font-semibold">Feedback Type</Label>
+          <Label className="text-base font-semibold">Feedback Type</Label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { key: "COMPLAINT", label: "Complaint", desc: "Report grievance", icon: <AlertCircle className="h-4 w-4" /> },
@@ -160,7 +160,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
                 key={t.key}
                 type="button"
                 onClick={() => setType(t.key)}
-                className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    className={`min-w-0 p-2 sm:p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                   type === t.key
                     ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20 font-semibold"
                     : "border-border hover:bg-muted/50 text-muted-foreground"
@@ -168,9 +168,9 @@ export function ComplaintForm({ departments, onTrackTicket }) {
               >
                 <div className="flex items-center gap-2 mb-1">
                   {t.icon}
-                  <span className="text-sm font-bold text-foreground">{t.label}</span>
+                  <span className="text-base font-bold text-foreground">{t.label}</span>
                 </div>
-                <span className="text-[11px] block text-muted-foreground">{t.desc}</span>
+                <span className="text-sm block text-muted-foreground">{t.desc}</span>
               </button>
             ))}
           </div>
@@ -179,7 +179,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
         {/* Department & Category */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="dept-select" className="text-sm font-semibold">
+            <Label htmlFor="dept-select" className="text-base font-semibold">
               Concerned Department <span className="text-destructive">*</span>
             </Label>
             <Select value={departmentId} onValueChange={setDepartmentId}>
@@ -199,7 +199,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category-select" className="text-sm font-semibold">
+            <Label htmlFor="category-select" className="text-base font-semibold">
               Category Tag <span className="text-destructive">*</span>
             </Label>
             <Select value={category} onValueChange={setCategory}>
@@ -230,8 +230,8 @@ export function ComplaintForm({ departments, onTrackTicket }) {
         {/* Severity & SLA Matrix */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-semibold">Urgency & Severity Level</Label>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Label className="text-base font-semibold">Urgency & Severity Level</Label>
+            <span className="text-sm text-muted-foreground flex items-center gap-1 text-right leading-tight">
               <Clock className="h-3 w-3" /> Time-bound escalation guarantee
             </span>
           </div>
@@ -251,7 +251,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
                   }`}
                 >
                   <p className="text-sm font-bold text-foreground">{label}</p>
-                  <Badge variant="outline" className="mt-1 text-[10px]">
+                  <Badge variant="outline" className="mt-1 w-full min-w-0 justify-center whitespace-normal text-center text-xs leading-tight sm:text-sm">
                     {hours}h SLA Deadline
                   </Badge>
                 </button>
@@ -263,7 +263,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
         {/* Title & Description */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-semibold">
+            <Label htmlFor="title" className="text-base font-semibold">
               Summary / Subject <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -277,7 +277,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="desc" className="text-sm font-semibold">
+            <Label htmlFor="desc" className="text-base font-semibold">
               Detailed Description <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -292,7 +292,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-sm font-semibold">
+            <Label htmlFor="location" className="text-base font-semibold">
               Specific Ward / Room / Floor (Optional)
             </Label>
             <Input
@@ -311,11 +311,11 @@ export function ComplaintForm({ departments, onTrackTicket }) {
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   <EyeOff className="h-4 w-4 text-primary" />
-                  <Label htmlFor="anonymous-toggle" className="text-sm font-bold cursor-pointer">
+                  <Label htmlFor="anonymous-toggle" className="text-base font-bold cursor-pointer">
                     Submit Anonymously
                   </Label>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Your identity will remain completely confidential. You can track progress with your ticket code.
                 </p>
               </div>
@@ -331,34 +331,34 @@ export function ComplaintForm({ departments, onTrackTicket }) {
             {!isAnonymous && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t">
                 <div className="space-y-1.5">
-                  <Label htmlFor="pname" className="text-xs font-medium">Your Name</Label>
+                  <Label htmlFor="pname" className="text-sm font-medium">Your Name</Label>
                   <Input
                     id="pname"
                     placeholder="Full name"
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
-                    className="h-9 text-xs"
+                    className="h-10 text-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="pphone" className="text-xs font-medium">Phone Number</Label>
+                  <Label htmlFor="pphone" className="text-sm font-medium">Phone Number</Label>
                   <Input
                     id="pphone"
                     placeholder="+91 98765 43210"
                     value={patientPhone}
                     onChange={(e) => setPatientPhone(e.target.value)}
-                    className="h-9 text-xs"
+                    className="h-10 text-sm"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="pemail" className="text-xs font-medium">Email Address</Label>
+                  <Label htmlFor="pemail" className="text-sm font-medium">Email Address</Label>
                   <Input
                     id="pemail"
                     type="email"
                     placeholder="name@example.com"
                     value={patientEmail}
                     onChange={(e) => setPatientEmail(e.target.value)}
-                    className="h-9 text-xs"
+                    className="h-10 text-sm"
                   />
                 </div>
               </div>
@@ -370,7 +370,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          className="w-full h-12 text-base font-bold gap-2 shadow-soft hover:shadow-hover"
+          className="w-full min-h-12 h-auto py-3 text-base font-bold gap-2 shadow-soft hover:shadow-hover whitespace-normal text-center leading-tight"
           id="submit-feedback-btn"
         >
           {isSubmitting ? (
@@ -422,7 +422,7 @@ export function ComplaintForm({ departments, onTrackTicket }) {
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Save this code to track your resolution status anytime, even without an account.
                 </p>
               </div>

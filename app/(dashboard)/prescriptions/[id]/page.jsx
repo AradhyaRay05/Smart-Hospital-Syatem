@@ -15,6 +15,7 @@ import {
   Activity,
   ShieldCheck,
 } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function PrescriptionDetailPage() {
   const router = useRouter();
@@ -35,10 +36,14 @@ export default function PrescriptionDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading prescription data...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Compiling the prescription sheet…",
+          "Verifying medication records…",
+          "Loading the prescription…",
+          "Almost done…",
+        ]}
+      />
     );
   }
 
@@ -88,31 +93,20 @@ export default function PrescriptionDetailPage() {
       `}</style>
 
       {/* Screen-Only Header & Action Toolbar */}
-      <div className="flex items-center justify-between gap-4 mb-2 print:hidden">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full hover:bg-muted"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="size-5" />
-          </Button>
-          <PageHeader
-            title="Prescription Sheet"
-            description={`RX-${prescription.id.slice(0, 8).toUpperCase()}`}
-            breadcrumbs={[{ label: "Prescriptions", href: "/prescriptions" }, { label: "Sheet" }]}
-            className="m-0 p-0"
-          />
-        </div>
-        <div className="flex items-center gap-3">
+      <div className="print:hidden">
+        <PageHeader
+          title="Prescription Sheet"
+          description={`RX-${prescription.id.slice(0, 8).toUpperCase()}`}
+          breadcrumbs={[{ label: "Prescriptions", href: "/prescriptions" }, { label: "Sheet" }]}
+          onBack={() => router.back()}
+        >
           <Button
             onClick={() => window.print()}
-            className="rounded-xl shadow-md gradient-primary text-white border-0 font-bold hover:shadow-lg transition-all hover:-translate-y-0.5 px-5"
+            className="w-full sm:w-auto rounded-xl shadow-md gradient-primary text-white border-0 font-bold hover:shadow-lg transition-all hover:-translate-y-0.5 px-5 h-11"
           >
             <Printer className="mr-2 size-4" /> Print Prescription (PDF)
           </Button>
-        </div>
+        </PageHeader>
       </div>
 
       {/* Real Clinical Prescription Document */}

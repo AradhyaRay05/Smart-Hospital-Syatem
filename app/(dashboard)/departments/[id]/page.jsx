@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Pencil, Loader2, UserCog, Phone, Building2, CalendarDays, ArrowLeft } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 import { toast } from "sonner";
 
 export default function DepartmentDetailPage() {
@@ -34,10 +35,14 @@ export default function DepartmentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading department details...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Loading department info…",
+          "Fetching team members…",
+          "Organizing clinical data…",
+          "Almost there…",
+        ]}
+      />
     );
   }
 
@@ -45,28 +50,21 @@ export default function DepartmentDetailPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 space-y-6">
-      <div className="flex items-start gap-4 mb-2">
-        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted mt-1" onClick={() => router.push("/departments")}>
-          <ArrowLeft className="size-5" />
-        </Button>
-        <div className="flex-1">
-          <PageHeader
-            title={department.name}
-            description={department.description || "No description provided for this department."}
-            breadcrumbs={[
-              { label: "Departments", href: "/departments" },
-              { label: department.name },
-            ]}
-            className="m-0 p-0"
-          >
-            <Link href={`/departments/${department.id}/edit`}>
-              <Button className="gradient-primary rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
-                <Pencil className="mr-2 size-4" /> Edit Department
-              </Button>
-            </Link>
-          </PageHeader>
-        </div>
-      </div>
+      <PageHeader
+        title={department.name}
+        description={department.description || "No description provided for this department."}
+        breadcrumbs={[
+          { label: "Departments", href: "/departments" },
+          { label: department.name },
+        ]}
+        onBack={() => router.push("/departments")}
+      >
+        <Link href={`/departments/${department.id}/edit`} className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto gradient-primary rounded-xl shadow-md hover:shadow-lg transition-all font-bold h-11">
+            <Pencil className="mr-2 size-4" /> Edit Department
+          </Button>
+        </Link>
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-3 items-start">
         {/* Left Column - Meta Data */}

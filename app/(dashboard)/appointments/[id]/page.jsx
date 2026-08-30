@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Loader2, XCircle, CheckCircle, UserCog, Users, Calendar, FileText, ArrowLeft } from "lucide-react";
+import { XCircle, CheckCircle, UserCog, Users, Calendar, FileText, ArrowLeft } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function AppointmentDetailPage() {
   const router = useRouter();
@@ -61,10 +62,14 @@ export default function AppointmentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading appointment data...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Fetching appointment details…",
+          "Loading schedule data…",
+          "Checking availability…",
+          "Almost ready…",
+        ]}
+      />
     );
   }
 
@@ -78,33 +83,28 @@ export default function AppointmentDetailPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center gap-4 mb-2">
-        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
-          <ArrowLeft className="size-5" />
-        </Button>
-        <PageHeader
-          title="Appointment Details"
-          description={`ID: #${appointment.id.slice(0, 8)}`}
-          breadcrumbs={[
-            { label: "Appointments", href: "/appointments" },
-            { label: "Details" },
-          ]}
-          className="m-0 p-0"
-        >
-          {appointment.status === "SCHEDULED" && (
-            <div className="flex gap-3">
-              {!isPatient && (
-                <Button onClick={handleComplete} disabled={actionLoading} className="gradient-accent border-0 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
-                  <CheckCircle className="mr-2 size-4" /> Mark Complete
-                </Button>
-              )}
-              <Button variant="destructive" onClick={handleCancel} disabled={actionLoading} className="rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
-                <XCircle className="mr-2 size-4" /> Cancel
+      <PageHeader
+        title="Appointment Details"
+        description={`ID: #${appointment.id.slice(0, 8)}`}
+        breadcrumbs={[
+          { label: "Appointments", href: "/appointments" },
+          { label: "Details" },
+        ]}
+        onBack={() => router.back()}
+      >
+        {appointment.status === "SCHEDULED" && (
+          <div className="grid grid-cols-2 sm:flex gap-2.5 sm:gap-3 w-full sm:w-auto">
+            {!isPatient && (
+              <Button onClick={handleComplete} disabled={actionLoading} className="w-full sm:w-auto gradient-accent border-0 rounded-xl shadow-md hover:shadow-lg transition-all font-bold h-11">
+                <CheckCircle className="mr-2 size-4" /> Mark Complete
               </Button>
-            </div>
-          )}
-        </PageHeader>
-      </div>
+            )}
+            <Button variant="destructive" onClick={handleCancel} disabled={actionLoading} className="w-full sm:w-auto rounded-xl shadow-md hover:shadow-lg transition-all font-bold h-11">
+              <XCircle className="mr-2 size-4" /> Cancel
+            </Button>
+          </div>
+        )}
+      </PageHeader>
 
       <div className="grid gap-6 lg:grid-cols-5 items-start">
         {/* Left Column - Main Info */}

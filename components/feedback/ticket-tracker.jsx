@@ -176,16 +176,16 @@ export function TicketTracker({ initialCode = "" }) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono font-bold text-lg text-primary">{ticket.ticketNumber}</span>
+                    <span className="font-mono font-bold text-xl text-primary">{ticket.ticketNumber}</span>
                     <Badge className={statusColors[ticket.status] || "bg-muted"}>
                       {COMPLAINT_STATUS_LABELS[ticket.status] || ticket.status}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl">{ticket.title}</CardTitle>
+                  <CardTitle className="text-2xl">{ticket.title}</CardTitle>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={`px-2.5 py-1 text-xs border ${escalationColors[ticket.escalationLevel]}`}>
+                  <Badge variant="outline" className={`px-2.5 py-1 text-sm border ${escalationColors[ticket.escalationLevel]}`}>
                     <Layers className="h-3 w-3 mr-1 inline" />
                     {ESCALATION_LEVEL_LABELS[ticket.escalationLevel]}
                   </Badge>
@@ -195,7 +195,7 @@ export function TicketTracker({ initialCode = "" }) {
 
             <CardContent className="p-4 sm:p-6 space-y-6">
               {/* Meta information tags */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                 <div className="p-2.5 rounded-lg bg-muted/40 border space-y-0.5">
                   <span className="text-muted-foreground block">Department</span>
                   <span className="font-semibold text-foreground flex items-center gap-1">
@@ -225,7 +225,7 @@ export function TicketTracker({ initialCode = "" }) {
 
               {/* SLA Status Bar */}
               {slaInfo && (
-                <div className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 text-xs ${
+                <div className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 text-sm ${
                   slaInfo.isResolved
                     ? "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
                     : slaInfo.isOverdue
@@ -243,20 +243,20 @@ export function TicketTracker({ initialCode = "" }) {
                     <span className="font-bold">SLA Guarantee Status:</span>
                     <span>{slaInfo.text}</span>
                   </div>
-                  <span className="text-[11px] opacity-75 hidden sm:inline">
+                  <span className="text-sm opacity-75 hidden sm:inline">
                     Target: {new Date(ticket.slaDeadline).toLocaleString("en-US")}
                   </span>
                 </div>
               )}
 
               {/* Description */}
-              <div className="space-y-1.5 text-sm">
+              <div className="space-y-1.5 text-base">
                 <span className="font-semibold text-foreground block">Reported Details:</span>
                 <p className="text-muted-foreground bg-muted/20 p-3.5 rounded-xl border whitespace-pre-wrap leading-relaxed">
                   {ticket.description}
                 </p>
                 {ticket.location && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     📍 Location: <strong className="text-foreground">{ticket.location}</strong>
                   </p>
                 )}
@@ -269,16 +269,16 @@ export function TicketTracker({ initialCode = "" }) {
                     <CheckCircle2 className="h-4 w-4" />
                     Resolution & Corrective Action Taken
                   </div>
-                  <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                  <p className="text-sm text-emerald-900 dark:text-emerald-200 leading-relaxed">
                     {ticket.resolutionSummary}
                   </p>
                   {ticket.actionTaken && (
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">
                       Action Taken: {ticket.actionTaken}
                     </p>
                   )}
                   {ticket.resolvedAt && (
-                    <span className="text-[10px] text-muted-foreground block pt-1">
+                    <span className="text-sm text-muted-foreground block pt-1">
                       Resolved on {new Date(ticket.resolvedAt).toLocaleString("en-US")}
                     </span>
                   )}
@@ -287,18 +287,18 @@ export function TicketTracker({ initialCode = "" }) {
 
               {/* Step Milestone Progress */}
               <div className="space-y-3 pt-2">
-                <span className="font-semibold text-sm block">Resolution Journey</span>
+                <span className="font-semibold text-base block">Resolution Journey</span>
                 <div className="space-y-3 border-l-2 border-primary/30 pl-4 ml-2">
                   {ticket.escalationLogs?.map((log) => (
-                    <div key={log.id} className="relative space-y-1 text-xs">
+                    <div key={log.id} className="relative space-y-1 text-sm">
                       <div className="absolute -left-[23px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-foreground">{log.triggerReason}</span>
-                        <span className="text-muted-foreground text-[10px]">
+                        <span className="text-muted-foreground text-sm">
                           {new Date(log.createdAt).toLocaleDateString("en-US")} at {new Date(log.createdAt).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-sm">
                         Authority: {ESCALATION_LEVEL_LABELS[log.toLevel] || log.toLevel}
                       </Badge>
                     </div>

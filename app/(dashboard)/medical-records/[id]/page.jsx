@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { getMedicalRecordById } from "@/actions/medical-records";
-import { PageHeader } from "@/components/shared/page-header";
+import { Breadcrumb } from "@/components/layouts/breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Loader2, Pencil, Plus, Pill, AlertCircle, FileText, User, Stethoscope, CalendarClock, ArrowLeft } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function MedicalRecordDetailPage() {
   const router = useRouter();
@@ -28,10 +29,14 @@ export default function MedicalRecordDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading patient file...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Loading the records…",
+          "Be patient, fetching clinical data…",
+          "Decrypting patient information…",
+          "Organizing medical history…",
+        ]}
+      />
     );
   }
 
@@ -39,26 +44,42 @@ export default function MedicalRecordDetailPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 space-y-6 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.push("/medical-records")}>
+      {/* Top Breadcrumb row */}
+      <div>
+        <Breadcrumb items={[{ label: "Medical Records", href: "/medical-records" }, { label: "Details" }]} />
+      </div>
+
+      {/* Header Row: Back button, Title & Action Buttons */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-muted shrink-0 mt-0.5 sm:mt-0"
+            onClick={() => router.push("/medical-records")}
+            title="Back to Medical Records"
+          >
             <ArrowLeft className="size-5" />
           </Button>
-          <PageHeader
-            title="Medical Record"
-            description={`${record.patient.firstName} ${record.patient.lastName} - ${format(new Date(record.createdAt), "MMMM dd, yyyy")}`}
-            breadcrumbs={[{ label: "Medical Records", href: "/medical-records" }, { label: "Details" }]}
-            className="m-0 p-0"
-          />
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+              Medical Record
+            </h1>
+            <p className="text-sm sm:text-base font-medium text-muted-foreground leading-relaxed">
+              {record.patient.firstName} {record.patient.lastName} &bull; {format(new Date(record.createdAt), "MMMM dd, yyyy")}
+            </p>
+          </div>
         </div>
-        <div className="flex gap-3 pl-14 sm:pl-0">
-          <Link href={`/medical-records/${record.id}/edit`}>
-            <Button variant="outline" className="rounded-xl shadow-sm hover:bg-muted font-bold h-11">
+
+        {/* Action Buttons: Responsive 2-col on mobile, flex row on desktop */}
+        <div className="grid grid-cols-2 sm:flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+          <Link href={`/medical-records/${record.id}/edit`} className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full rounded-xl shadow-xs hover:bg-muted font-bold h-11 px-4 text-sm sm:text-base">
               <Pencil className="mr-2 size-4 text-muted-foreground" /> Edit
             </Button>
           </Link>
-          <Link href={`/prescriptions/new?medicalRecordId=${record.id}`}>
-            <Button className="gradient-primary rounded-xl shadow-md hover:shadow-lg transition-all font-bold h-11 border-0">
+          <Link href={`/prescriptions/new?medicalRecordId=${record.id}`} className="w-full sm:w-auto">
+            <Button className="w-full gradient-primary rounded-xl shadow-md hover:shadow-lg transition-all font-bold h-11 px-4 border-0 text-sm sm:text-base whitespace-nowrap">
               <Plus className="mr-2 size-4" /> Add Prescription
             </Button>
           </Link>

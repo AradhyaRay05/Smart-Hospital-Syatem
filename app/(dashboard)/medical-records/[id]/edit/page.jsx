@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, FileText, Save, ArrowLeft } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 import { format } from "date-fns";
 
 const schema = z.object({
@@ -62,10 +63,14 @@ export default function EditMedicalRecordPage() {
 
   if (fetching) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading clinical data...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Loading clinical data…",
+          "Fetching the record to edit…",
+          "Be patient, preparing the form…",
+          "Almost ready…",
+        ]}
+      />
     );
   }
 

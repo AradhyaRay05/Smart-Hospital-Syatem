@@ -4,6 +4,45 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ==========================================================================
+   RESPONSIVE / FLUID TYPOGRAPHY SCALE
+   --------------------------------------------------------------------------
+   A single, consistent, clamp()-based type scale used across the whole app
+   (marketing site + dashboard) so font sizes never jump awkwardly between
+   breakpoints and stay comfortably large and legible on every device, from
+   small phones (375px) up to large desktop monitors (1920px+).
+   Usage: className="text-fluid-sm" ... "text-fluid-3xl" etc.
+   ========================================================================== */
+:root {
+  --fluid-xs: clamp(0.8125rem, 0.77rem + 0.2vw, 0.875rem);     /* 13 -> 14px */
+  --fluid-sm: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);          /* 15 -> 16px */
+  --fluid-base: clamp(1.0625rem, 1rem + 0.3vw, 1.125rem);      /* 17 -> 18px */
+  --fluid-lg: clamp(1.1875rem, 1.1rem + 0.4vw, 1.3125rem);     /* 19 -> 21px */
+  --fluid-xl: clamp(1.3125rem, 1.2rem + 0.6vw, 1.5rem);        /* 21 -> 24px */
+  --fluid-2xl: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);          /* 24 -> 30px */
+  --fluid-3xl: clamp(1.75rem, 1.5rem + 1.3vw, 2.375rem);       /* 28 -> 38px */
+  --fluid-4xl: clamp(2.1rem, 1.7rem + 2vw, 3rem);              /* 34 -> 48px */
+  --fluid-5xl: clamp(2.5rem, 1.9rem + 3vw, 3.75rem);           /* 40 -> 60px */
+  --fluid-6xl: clamp(2.9rem, 2.1rem + 4vw, 4.5rem);            /* 46 -> 72px */
+}
+
+@theme inline {
+  --text-fluid-xs: var(--fluid-xs);
+  --text-fluid-sm: var(--fluid-sm);
+  --text-fluid-base: var(--fluid-base);
+  --text-fluid-lg: var(--fluid-lg);
+  --text-fluid-xl: var(--fluid-xl);
+  --text-fluid-2xl: var(--fluid-2xl);
+  --text-fluid-3xl: var(--fluid-3xl);
+  --text-fluid-4xl: var(--fluid-4xl);
+  --text-fluid-5xl: var(--fluid-5xl);
+  --text-fluid-6xl: var(--fluid-6xl);
+
+  /* Extra small breakpoint for phones in landscape / larger phones,
+     used to move 2-column grids in earlier than the default `sm` (640px) */
+  --breakpoint-xs: 30rem; /* 480px */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -104,8 +143,35 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* Larger, more legible baseline across every device */
+    font-size: 17px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background/95 text-foreground transition-colors duration-300;
+    font-size: var(--fluid-base);
+    line-height: 1.6;
+  }
+  .dark body {
+    @apply bg-background/95;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Comfortable minimum tap targets on touch devices */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 16px;
   }
 }
 
@@ -128,6 +194,206 @@
   }
   .glass-panel {
     @apply bg-white/70 backdrop-blur-xl border border-white/40 dark:bg-slate-900/70 dark:border-slate-800/50;
+  }
+
+  @keyframes authPanelIn {
+    0% {
+      opacity: 0;
+      transform: translateY(8px) scale(0.985);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .auth-panel-animate {
+    animation: authPanelIn 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: opacity 320ms ease, transform 320ms ease;
+  }
+
+  /* ------------------------------------------------------------------------
+     Unlumen UI style "zoom over hover" utility
+     Apply directly to any element: className="hover-zoom"
+     ------------------------------------------------------------------------ */
+  .hover-zoom {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
+  }
+  .hover-zoom:hover,
+  .hover-zoom:focus-visible {
+    transform: scale(1.06) translateY(-2px);
+  }
+
+  /* ------------------------------------------------------------------------
+     Unlumen UI style "glow over hover" utility
+     Apply directly to any element: className="hover-glow"
+     Optionally set --glow-color inline to theme it.
+     ------------------------------------------------------------------------ */
+  .hover-glow {
+    position: relative;
+    isolation: isolate;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+  .hover-glow::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in oklab, var(--glow-color, var(--primary)) 45%, transparent),
+      transparent 75%
+    );
+    opacity: 0;
+    filter: blur(24px);
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .hover-glow:hover::after,
+  .hover-glow:focus-visible::after {
+    opacity: 1;
+  }
+  .hover-glow:hover,
+  .hover-glow:focus-visible {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--glow-color, var(--primary)) 40%, transparent);
+  }
+
+  /* Shimmering text utility (Smooth UI style) */
+  .text-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      currentColor 30%,
+      color-mix(in oklab, var(--primary) 75%, white) 45%,
+      color-mix(in oklab, var(--accent) 75%, white) 55%,
+      currentColor 70%
+    );
+    background-size: 220% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Responsive-friendly table wrapper for large data sets */
+  .table-scroll-area {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -20% 0; }
+}
+
+/* ── Infinite horizontal marquee ─────────────────────────────────────────
+   Mobile-only rotating ticker.
+   The inner content is rendered twice in the DOM; translateX(-50%) moves
+   exactly one copy's width out, then the browser snaps back invisibly
+   because the second copy is pixel-identical to the first.
+   ─────────────────────────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee 22s linear infinite;
+}
+
+/* Pause on hover/focus so users can read or tap a pill */
+.marquee-track:hover,
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
+/* ── Live Blurred Glassmorphic Orb Animations ────────────────────────────── */
+@keyframes glassOrb1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(40px, 60px, 0) scale(1.1);
+  }
+  66% {
+    transform: translate3d(-30px, 30px, 0) scale(0.95);
+  }
+}
+
+@keyframes glassOrb2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(-50px, 40px, 0) scale(0.92);
+  }
+  66% {
+    transform: translate3d(30px, -40px, 0) scale(1.08);
+  }
+}
+
+@keyframes glassOrb3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  40% {
+    transform: translate3d(60px, -50px, 0) scale(1.12);
+  }
+  75% {
+    transform: translate3d(-40px, -20px, 0) scale(0.9);
+  }
+}
+
+@keyframes glassOrb4 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-45px, -60px, 0) scale(1.06);
+  }
+}
+
+.animate-glass-orb-1 {
+  animation: glassOrb1 18s ease-in-out infinite;
+}
+
+.animate-glass-orb-2 {
+  animation: glassOrb2 22s ease-in-out infinite;
+}
+
+.animate-glass-orb-3 {
+  animation: glassOrb3 25s ease-in-out infinite;
+}
+
+.animate-glass-orb-4 {
+  animation: glassOrb4 20s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .animate-glass-orb-1,
+  .animate-glass-orb-2,
+  .animate-glass-orb-3,
+  .animate-glass-orb-4 {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-zoom,
+  .hover-glow::after,
+  .text-shimmer {
+    animation: none !important;
+    transition: none !important;
+  }
+  .hover-zoom:hover,
+  .hover-zoom:focus-visible {
+    transform: none;
   }
 }
 

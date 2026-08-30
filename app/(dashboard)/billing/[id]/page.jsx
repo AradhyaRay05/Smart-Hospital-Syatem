@@ -12,6 +12,7 @@ import { FormSelect } from "@/components/shared/form-select";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Loader2, Printer, CheckCircle, Receipt, Building2, User, Stethoscope, ArrowLeft, IndianRupee, Activity } from "lucide-react";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function BillDetailPage() {
   const router = useRouter();
@@ -41,10 +42,14 @@ export default function BillDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in">
-        <Loader2 className="size-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading invoice details...</p>
-      </div>
+      <PageLoader
+        messages={[
+          "Loading invoice details…",
+          "Calculating charges…",
+          "Fetching billing records…",
+          "Verifying payment status…",
+        ]}
+      />
     );
   }
   
@@ -52,17 +57,14 @@ export default function BillDetailPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4 mb-2 print:hidden">
-        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
-          <ArrowLeft className="size-5" />
-        </Button>
-        <PageHeader 
-          title="Invoice Details" 
-          description={`INV-${bill.id.slice(0, 8).toUpperCase()}`} 
+      <div className="print:hidden">
+        <PageHeader
+          title="Invoice Details"
+          description={`INV-${bill.id.slice(0, 8).toUpperCase()}`}
           breadcrumbs={[{ label: "Billing", href: "/billing" }, { label: "Invoice" }]}
-          className="m-0 p-0"
+          onBack={() => router.back()}
         >
-          <Button onClick={() => window.print()} className="rounded-xl shadow-md bg-white text-foreground border border-border/50 hover:bg-muted font-bold transition-all hover:-translate-y-0.5">
+          <Button onClick={() => window.print()} className="w-full sm:w-auto rounded-xl shadow-md bg-white text-foreground border border-border/50 hover:bg-muted font-bold transition-all hover:-translate-y-0.5 h-11">
             <Printer className="mr-2 size-4" /> Print Invoice
           </Button>
         </PageHeader>

@@ -8,8 +8,8 @@ export function EmptyState({ icon: Icon, title, description, children, className
           <Icon className="size-8" />
         </div>
       )}
-      <h3 className="mb-1 text-xl font-extrabold tracking-tight text-foreground">{title}</h3>
-      {description && <p className="mb-6 max-w-sm text-sm font-medium text-muted-foreground leading-relaxed">{description}</p>}
+      <h3 className="mb-1.5 text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">{title}</h3>
+      {description && <p className="mb-6 max-w-sm text-sm sm:text-base font-medium text-muted-foreground leading-relaxed">{description}</p>}
       {children}
     </div>
   );

@@ -1,9 +1,5 @@
-import { DashboardSkeleton } from "@/components/shared/skeletons";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function DashboardLoading() {
-  return (
-    <div className="animate-in fade-in duration-500">
-      <DashboardSkeleton />
-    </div>
-  );
+  return <PageLoader messages={["Loading dashboard…", "Checking appointments…", "Syncing patient data…"]} />;
 }

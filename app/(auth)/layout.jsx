@@ -10,9 +10,11 @@ export default function AuthLayout({ children }) {
   ];
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="relative flex min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(45,212,191,0.15),transparent_30%),linear-gradient(180deg,_rgba(240,244,248,0.97),_rgba(226,232,240,0.98))] dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(45,212,191,0.14),transparent_32%),linear-gradient(180deg,_rgba(9,14,23,0.98),_rgba(15,23,42,0.96))]">
+      <div className="pointer-events-none absolute inset-0 bg-white/10 dark:bg-slate-950/10 backdrop-blur-[2px]" />
+
       {/* Left Side - Visual Hero (Hidden on Mobile) */}
-      <div className="hidden w-1/2 gradient-hero relative overflow-hidden lg:flex lg:flex-col lg:items-center lg:justify-center shadow-2xl z-10">
+      <div className="hidden w-1/2 gradient-hero relative overflow-hidden lg:flex lg:flex-col lg:items-center lg:justify-center shadow-2xl z-10 rounded-r-[2rem] border-r border-white/10">
         {/* Animated Glowing Orbs */}
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute -right-32 -top-32 h-[600px] w-[600px] rounded-full bg-teal-400 blur-[120px] mix-blend-screen animate-pulse" />
@@ -65,11 +67,12 @@ export default function AuthLayout({ children }) {
       {/* Right Side - Auth Forms */}
       <div className="flex w-full items-center justify-center lg:w-1/2 relative">
         {/* Subtle background element for right side */}
-        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-40">
-          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[80px]" />
+        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-60">
+          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[90px]" />
+          <div className="absolute left-10 bottom-0 h-[360px] w-[360px] rounded-full bg-accent/10 blur-[90px]" />
         </div>
         
-        <div className="w-full max-w-md px-6 py-12 lg:px-8 relative z-10">
+        <div className="w-full max-w-md px-5 py-9 sm:px-6 sm:py-12 lg:px-8 relative z-10">
           {children}
         </div>
       </div>
