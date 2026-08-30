@@ -12,20 +12,21 @@ export default function DashboardLayout({ children, role, user }) {
 
   return (
     <RoleProvider role={role} user={user}>
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div className="flex h-screen overflow-hidden bg-background/60 backdrop-blur-md">
         
         {/* Desktop Sidebar */}
         <div className="hidden lg:block z-20 shadow-soft h-screen shrink-0">
           <Sidebar
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+            isMobile={false}
           />
         </div>
 
         {/* Mobile Sidebar */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="w-[280px] p-0 border-r-0 shadow-2xl">
-            <Sidebar collapsed={false} onToggle={() => {}} />
+          <SheetContent side="left" className="w-[280px] p-0 border-none shadow-2xl rounded-r-3xl">
+            <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} isMobile={true} />
           </SheetContent>
         </Sheet>
 

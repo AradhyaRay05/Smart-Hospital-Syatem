@@ -27,7 +27,7 @@ export function FeedbackKiosk({ departments }) {
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           Your Voice Drives Our Care
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Submit feedback or complaints directly to the concerned Department Head. Unresolved issues automatically escalate to Hospital Administrators.
         </p>
       </div>
@@ -39,8 +39,8 @@ export function FeedbackKiosk({ departments }) {
             <MessageSquarePlus className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold">Category-Tagged</h4>
-            <p className="text-[11px] text-muted-foreground">Auto-routed to Dept Head</p>
+            <h4 className="text-sm font-bold">Category-Tagged</h4>
+            <p className="text-sm text-muted-foreground">Auto-routed to Dept Head</p>
           </div>
         </div>
 
@@ -49,8 +49,8 @@ export function FeedbackKiosk({ departments }) {
             <Clock className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold">12h to 72h SLA Matrix</h4>
-            <p className="text-[11px] text-muted-foreground">Rule-based escalation timers</p>
+            <h4 className="text-sm font-bold">12h to 72h SLA Matrix</h4>
+            <p className="text-sm text-muted-foreground">Rule-based escalation timers</p>
           </div>
         </div>
 
@@ -59,22 +59,22 @@ export function FeedbackKiosk({ departments }) {
             <CheckCircle className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold">Anonymous Tracking</h4>
-            <p className="text-[11px] text-muted-foreground">Track with unique ticket code</p>
+            <h4 className="text-sm font-bold">Anonymous Tracking</h4>
+            <p className="text-sm text-muted-foreground">Track with unique ticket code</p>
           </div>
         </div>
       </div>
 
       {/* Main Tabs Card */}
       <Card className="border shadow-soft overflow-hidden">
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="p-3 sm:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto h-12 p-1">
-              <TabsTrigger value="submit" className="gap-2 font-bold text-sm h-10">
+            <TabsList className="grid grid-cols-1 sm:grid-cols-2 w-full max-w-md mx-auto h-auto min-h-12 p-1 gap-1">
+              <TabsTrigger value="submit" className="gap-2 font-bold text-base h-auto min-h-10 py-2 whitespace-normal text-center leading-tight">
                 <MessageSquarePlus className="h-4 w-4" />
                 Submit Grievance
               </TabsTrigger>
-              <TabsTrigger value="track" className="gap-2 font-bold text-sm h-10">
+              <TabsTrigger value="track" className="gap-2 font-bold text-base h-auto min-h-10 py-2 whitespace-normal text-center leading-tight">
                 <SearchCheck className="h-4 w-4" />
                 Track Ticket Status
               </TabsTrigger>

@@ -89,14 +89,14 @@ export default async function ProfilePage() {
               <div className="flex items-center gap-3.5 mt-4 pt-4 border-t border-border/60">
                 <div className="p-2.5 bg-background rounded-xl shadow-sm text-muted-foreground"><IdCard className="size-4" /></div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Account ID</span>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Account ID</span>
                   <span className="font-mono text-xs font-bold">{user.employeeId || user.id.slice(0, 12)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3.5">
                 <div className="p-2.5 bg-background rounded-xl shadow-sm text-muted-foreground"><Calendar className="size-4" /></div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Member Since</span>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Member Since</span>
                   <span className="font-bold text-sm">{new Date(user.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
               </div>

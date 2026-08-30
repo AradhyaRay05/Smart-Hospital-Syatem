@@ -150,33 +150,33 @@ function SignInForm() {
         <span className="text-2xl font-bold tracking-tight text-foreground">SHDS</span>
       </Link>
 
-      <Card className="w-full shadow-soft border-border/40 bg-card/80 backdrop-blur-xl rounded-3xl overflow-hidden">
-        <CardHeader className="text-center space-y-3 pb-6 border-b border-border/20 bg-muted/20">
+      <Card className="w-full shadow-soft border border-white/40 bg-card/70 backdrop-blur-2xl rounded-4xl overflow-hidden ring-1 ring-white/30 dark:border-slate-700/60 dark:bg-slate-900/60">
+        <CardHeader className="text-center space-y-3 pb-6 border-b border-border/20 bg-white/20 dark:bg-slate-900/20 backdrop-blur-md">
           <CardTitle className="text-3xl font-extrabold tracking-tight">Welcome Back</CardTitle>
           <CardDescription className="text-base font-medium">Sign in with phone OTP or email</CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6 pt-6">
-          <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/60 p-1.5 shadow-inner">
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/60 p-1.5 shadow-inner backdrop-blur-sm">
             <button
               type="button"
               onClick={() => { setTab("phone"); setOtpSent(false); }}
-              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${tab === "phone" ? "bg-white text-primary shadow-sm scale-[1.02]" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-300 ease-out ${tab === "phone" ? "bg-white/85 text-primary shadow-sm scale-[1.02] ring-1 ring-primary/10 dark:bg-slate-800/90" : "text-muted-foreground hover:text-foreground"}`}
             >
               <Phone className="size-4" /> Phone OTP
             </button>
             <button
               type="button"
               onClick={() => setTab("email")}
-              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${tab === "email" ? "bg-white text-primary shadow-sm scale-[1.02]" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-300 ease-out ${tab === "email" ? "bg-white/85 text-primary shadow-sm scale-[1.02] ring-1 ring-primary/10 dark:bg-slate-800/90" : "text-muted-foreground hover:text-foreground"}`}
             >
               <Mail className="size-4" /> Email
             </button>
           </div>
 
-          <div className="min-h-[220px]">
+          <div className="relative min-h-75 overflow-hidden">
             {tab === "phone" ? (
-              <form onSubmit={otpSent ? handleVerifyOtp : (e) => { e.preventDefault(); handleSendOtp(); }} className="space-y-5 animate-in slide-in-from-left-4 fade-in duration-300">
+              <form key="phone-form" onSubmit={otpSent ? handleVerifyOtp : (e) => { e.preventDefault(); handleSendOtp(); }} className="auth-panel-animate space-y-5">
                 <div className="space-y-2.5">
                   <Label className="text-sm font-semibold text-foreground/80">Mobile Number</Label>
                   <div className="flex overflow-hidden rounded-xl border border-input focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all bg-background/50">
@@ -241,7 +241,7 @@ function SignInForm() {
                 )}
               </form>
             ) : (
-              <form onSubmit={handleEmailLogin} className="space-y-5 animate-in slide-in-from-right-4 fade-in duration-300">
+              <form key="email-form" onSubmit={handleEmailLogin} className="auth-panel-animate space-y-5">
                 <div className="space-y-2.5">
                   <Label htmlFor="email" className="text-sm font-semibold text-foreground/80">Email Address</Label>
                   <Input 

@@ -221,15 +221,15 @@ async function DoctorDashboard({ user }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
-          <CardHeader className="bg-primary/5 border-b border-primary/10 pb-4">
+        <Card className="shadow-soft border border-border/50 bg-card rounded-3xl overflow-hidden">
+          <CardHeader className="bg-primary/5 border-b border-border/50 pb-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-primary">
               <Clock className="size-4" /> Today's Schedule
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             {todayAppointments.length === 0 ? (
-              <div className="text-center py-8 px-4 rounded-2xl border-2 border-dashed border-border/60 bg-muted/20">
+              <div className="text-center py-8 px-4 rounded-2xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
                 <p className="text-sm font-bold text-muted-foreground">No appointments today.</p>
                 <p className="text-xs font-medium text-muted-foreground mt-1">Enjoy your free time or catch up on records.</p>
               </div>
@@ -251,15 +251,17 @@ async function DoctorDashboard({ user }) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-soft border-border/40 rounded-3xl overflow-hidden">
-          <CardHeader className="bg-muted/20 border-b border-border/30 pb-4">
+        <Card className="shadow-soft border border-border/50 bg-card rounded-3xl overflow-hidden">
+          <CardHeader className="bg-muted/15 border-b border-border/50 pb-4">
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <Calendar className="size-4 text-foreground/70" /> Upcoming Appointments
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
             {upcomingAppointments.length === 0 ? (
-              <p className="text-sm font-medium text-muted-foreground text-center py-8">No upcoming appointments scheduled.</p>
+              <div className="rounded-2xl border-2 border-dashed border-muted-foreground/30 bg-muted/20 px-4 py-8 text-center">
+                <p className="text-sm font-medium text-muted-foreground">No upcoming appointments scheduled.</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {upcomingAppointments.map((apt) => (

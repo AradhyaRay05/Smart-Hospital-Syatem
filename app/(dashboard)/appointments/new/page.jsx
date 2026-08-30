@@ -179,7 +179,7 @@ export default function NewAppointmentPage() {
         ]}
       />
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         {STEPS.map((item) => {
           const Icon = item.icon;
           const active = step === item.id;
@@ -191,12 +191,12 @@ export default function NewAppointmentPage() {
                 active ? "border-primary bg-primary/5 shadow-md scale-[1.02]" : done ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20" : "bg-card border-border/40 opacity-70"
               }`}
             >
-              {active && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent" />}
-              <div className="flex items-center gap-3">
+              {active && <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary to-accent" />}
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`rounded-xl p-2.5 transition-colors ${active ? "bg-primary text-white shadow-lg shadow-primary/30" : done ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}>
                   {done ? <CheckCircle2 className="size-5" /> : <Icon className="size-5" />}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className={`text-xs font-bold uppercase tracking-wider ${active ? "text-primary" : "text-muted-foreground"}`}>Step {item.id}</p>
                   <p className={`text-sm font-extrabold ${active ? "text-foreground" : "text-muted-foreground"}`}>{item.title}</p>
                 </div>
@@ -207,8 +207,8 @@ export default function NewAppointmentPage() {
       </div>
 
       <Card className="shadow-soft border-border/40 bg-card rounded-3xl overflow-hidden">
-        <CardContent className="p-8">
-          <div className="min-h-[350px] animate-in fade-in slide-in-from-right-4 duration-300">
+        <CardContent className="p-5 sm:p-8">
+          <div className="min-h-87.5 animate-in fade-in slide-in-from-right-4 duration-300">
             {step === 1 && (
               <div className="space-y-6">
                 <div>
@@ -217,14 +217,14 @@ export default function NewAppointmentPage() {
                 </div>
 
                 {isPatient ? (
-                  <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 shadow-inner flex items-center justify-between">
-                    <div>
+                  <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-6 shadow-inner flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
                       <p className="text-xl font-bold text-foreground">
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className="text-sm font-medium text-muted-foreground mt-1">{user?.email || user?.phone}</p>
+                      <p className="text-sm font-medium text-muted-foreground mt-1 wrap-break-word">{user?.email || user?.phone}</p>
                     </div>
-                    <Badge className="bg-primary hover:bg-primary px-3 py-1 font-bold">Booking for yourself</Badge>
+                    <Badge className="bg-primary hover:bg-primary px-3 py-1 font-bold whitespace-normal text-center h-auto">Booking for yourself</Badge>
                   </div>
                 ) : (
                   <div className="space-y-3 max-w-lg">
@@ -242,8 +242,8 @@ export default function NewAppointmentPage() {
                     
                     {selectedPatient && (
                       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mt-4 animate-in fade-in zoom-in-95">
-                        <p className="font-bold text-foreground">{selectedPatient.firstName} {selectedPatient.lastName}</p>
-                        <p className="text-sm font-medium text-muted-foreground mt-1">
+                        <p className="font-bold text-foreground wrap-break-word">{selectedPatient.firstName} {selectedPatient.lastName}</p>
+                        <p className="text-sm font-medium text-muted-foreground mt-1 wrap-break-word">
                           {selectedPatient.gender} • DOB {new Date(selectedPatient.dateOfBirth).toLocaleDateString("en-US")}
                           {selectedPatient.bloodGroup ? ` • ${selectedPatient.bloodGroup}` : ""}
                         </p>

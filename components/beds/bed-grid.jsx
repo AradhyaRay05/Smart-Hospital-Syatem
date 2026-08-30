@@ -95,13 +95,13 @@ function BedCard({ bed, onClick }) {
             </div>
 
             {/* Status Badge */}
-            <div className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider ${style.badge}`}>
+            <div className={`mt-2 flex items-center justify-center w-full px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-tight ${style.badge}`}>
               {BED_STATUS_LABELS[bed.status]}
             </div>
 
             {/* Patient info for occupied beds */}
             {bed.status === "OCCUPIED" && bed.patient && (
-              <p className="mt-1.5 text-[11px] text-muted-foreground truncate">
+              <p className="mt-1.5 text-xs text-muted-foreground truncate">
                 {bed.patient.firstName} {bed.patient.lastName}
               </p>
             )}
@@ -110,7 +110,7 @@ function BedCard({ bed, onClick }) {
             {bed.status === "NEEDS_CLEANING" && (
               <div className="mt-1.5 flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3 text-violet-500 animate-pulse" />
-                <span className="text-[10px] text-violet-600 dark:text-violet-400 font-medium">Housekeeping</span>
+                <span className="text-xs text-violet-600 dark:text-violet-400 font-medium">Housekeeping</span>
               </div>
             )}
           </button>
@@ -158,7 +158,7 @@ export function BedGrid({ wards, onBedClick }) {
           <CardHeader className="pb-3 space-y-1">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">{ward.name}</CardTitle>
-              <Badge variant="outline" className={`text-[10px] ${genderWardStyles[ward.genderWard]}`}>
+              <Badge variant="outline" className={`text-xs ${genderWardStyles[ward.genderWard]}`}>
                 {GENDER_WARD_LABELS[ward.genderWard]}
               </Badge>
             </div>

@@ -254,7 +254,7 @@ function BedStatusForm({ bed, onCancel, onStatusUpdated }) {
                 {option.icon}
                 <div className="text-left">
                   <p className="text-xs font-bold">{option.label}</p>
-                  <p className="text-[10px] opacity-80">{option.description}</p>
+                  <p className="text-xs opacity-80">{option.description}</p>
                 </div>
               </button>
             ))}
