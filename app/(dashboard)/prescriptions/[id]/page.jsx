@@ -173,7 +173,7 @@ export default function PrescriptionDetailPage() {
                 {doctor.qualification || "MBBS, MD"} (Reg. No. : {doctor.id.slice(-6).toUpperCase()})
               </p>
               <p className="font-semibold text-slate-700 leading-tight">
-                {doctor.specialization || "Senior Consultant & Physician"}
+                {doctor.specialization || "Consultant Physician"}
               </p>
               <p className="font-bold text-primary print:text-slate-900 text-[10.5px] leading-tight">
                 Department of {doctor.department?.name || "General Medicine"}
@@ -181,10 +181,10 @@ export default function PrescriptionDetailPage() {
             </div>
             <div className="md:text-right space-y-0.5">
               <p className="font-bold text-slate-800 leading-tight">
-                <span className="text-slate-600 font-medium">Visiting Hours:</span> Mon, Tue, Thu, Fri 10:00 AM - 01:00 PM
+                <span className="text-slate-600 font-medium">Availability:</span> {doctor.available ? "OPD Schedule (Mon - Sat)" : "By Appointment"}
               </p>
               <p className="font-bold text-slate-800 leading-tight">
-                <span className="text-slate-600 font-medium">Doctor Helpline:</span> {doctor.phone || doctor.user.phone || "+91 98300 61471"}
+                <span className="text-slate-600 font-medium">Doctor Contact:</span> {doctor.phone || doctor.user.phone || "Hospital Helpdesk"}
               </p>
               <p className="text-[10px] text-slate-600 leading-tight">
                 Emergency OPD Available 24x7
@@ -219,13 +219,13 @@ export default function PrescriptionDetailPage() {
               <div className="p-1 px-2">
                 <span className="font-bold text-slate-600">Address: </span>
                 <span className="font-medium text-slate-900 truncate block">
-                  {patient?.address || "Kolkata, West Bengal - 700 001"}
+                  {patient?.address || "—"}
                 </span>
               </div>
               <div className="p-1 px-2">
                 <span className="font-bold text-slate-600">Age / Sex: </span>
                 <span className="font-bold text-slate-900">
-                  {patientAge ? `${patientAge} Yrs` : "Adult"} / {patient?.gender || "—"}
+                  {patientAge ? `${patientAge} Yrs` : "—"} / {patient?.gender || "—"}
                 </span>
               </div>
               <div className="p-1 px-2">
@@ -240,8 +240,8 @@ export default function PrescriptionDetailPage() {
                 <span className="font-bold text-slate-900">{patient?.phone || "—"}</span>
               </div>
               <div className="p-1 px-2">
-                <span className="font-bold text-slate-600">Nationality: </span>
-                <span className="font-medium text-slate-900">Indian</span>
+                <span className="font-bold text-slate-600">Emergency Contact: </span>
+                <span className="font-medium text-slate-900">{patient?.emergencyContact || "—"}</span>
               </div>
               <div className="p-1 px-2">
                 <span className="font-bold text-slate-600">Visit Date/Time: </span>
@@ -253,20 +253,14 @@ export default function PrescriptionDetailPage() {
               </div>
             </div>
 
-            {/* Vitals & Allergy Strip */}
-            <div className="bg-slate-50 grid grid-cols-2 sm:grid-cols-4 divide-x divide-slate-900 text-[9.5px] p-0.5 px-2 font-medium">
+            {/* Vitals & Allergy Strip (Purely Real Database Fields) */}
+            <div className="bg-slate-50 grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-900 text-[9.5px] p-0.5 px-2 font-medium">
               <div>
-                <span className="font-bold text-slate-700">Height:</span> 167 cm
-              </div>
-              <div className="pl-1.5">
-                <span className="font-bold text-slate-700">Weight:</span> 68.5 kg
-              </div>
-              <div className="pl-1.5">
                 <span className="font-bold text-slate-700">Blood Group:</span>{" "}
-                <strong className="text-red-700">{patient?.bloodGroup || "O+"}</strong>
+                <strong className="text-red-700">{patient?.bloodGroup || "Not Tested"}</strong>
               </div>
               <div className="pl-1.5">
-                <span className="font-bold text-slate-700">Drug Allergy:</span>{" "}
+                <span className="font-bold text-slate-700">Known Drug Allergies:</span>{" "}
                 <span className="text-slate-900 font-bold">
                   {record?.allergies || "No Known Drug Allergies (NKDA)"}
                 </span>
@@ -280,117 +274,74 @@ export default function PrescriptionDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 border-t-2 border-b-2 border-slate-900 min-h-[360px] print:min-h-0">
             
             {/* ----------------------------------------------------- */}
-            {/* LEFT COLUMN: Clinical Findings & Investigations (5/12) */}
+            {/* LEFT COLUMN: Clinical Findings & Notes (5/12) */}
             {/* ----------------------------------------------------- */}
             <div className="md:col-span-5 p-2.5 space-y-2.5 text-[10.5px] border-b md:border-b-0 md:border-r-2 border-slate-900 bg-slate-50/40 print:p-2 print:space-y-2">
               
-              {/* 1. Chief Complaints */}
+              {/* 1. Chief Complaints & Symptoms */}
               <div>
                 <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-0.5">
-                  1. Chief Complaints:
+                  1. Chief Complaints & Symptoms:
                 </h3>
                 <p className="text-slate-800 font-medium whitespace-pre-wrap pl-1 leading-snug">
-                  {record?.symptoms || appointment?.reason || "Patient presented for routine health check-up and clinical consultation."}
+                  {record?.symptoms || appointment?.reason || "Routine clinical evaluation and consultation."}
                 </p>
               </div>
 
-              {/* 2. History */}
+              {/* 2. Medical History & Allergies */}
               <div>
                 <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-0.5">
-                  2. History (Present / Past / Family):
+                  2. Medical History & Known Sensitivities:
                 </h3>
                 <p className="text-slate-800 pl-1 text-[10px] leading-snug">
                   {record?.allergies
-                    ? `Known Sensitivities: ${record.allergies}. No other major chronic illnesses reported.`
-                    : "No significant past medical or surgical history reported. Non-diabetic, Non-hypertensive."}
+                    ? `Documented Allergies: ${record.allergies}`
+                    : "No specific past medical allergies or chronic sensitivities reported."}
                 </p>
               </div>
 
-              {/* 3. General Examination & Vitals */}
+              {/* 3. Clinical Notes & Observations */}
               <div>
                 <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-1">
-                  3. General Examination & Vitals:
+                  3. Doctor's Clinical Notes:
                 </h3>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] pl-1 font-medium text-slate-800">
-                  <div>
-                    <strong>BP:</strong> 120/80 mmHg
-                  </div>
-                  <div>
-                    <strong>Temp:</strong> 98.4 °F (Afebrile)
-                  </div>
-                  <div>
-                    <strong>Pulse:</strong> 76 / min
-                  </div>
-                  <div>
-                    <strong>SpO2:</strong> 99% on Room Air
-                  </div>
-                </div>
+                <p className="text-slate-800 pl-1 text-[10px] leading-snug whitespace-pre-wrap">
+                  {record?.doctorNotes || "General physical examination and evaluation completed."}
+                </p>
               </div>
 
-              {/* 4. Systemic Examination */}
-              <div>
-                <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-0.5">
-                  4. Systemic Examination:
-                </h3>
-                <div className="space-y-0.5 text-[9.5px] pl-1 text-slate-700 leading-tight">
-                  <p><strong>Chest:</strong> Bilateral vesicular breath sounds clear.</p>
-                  <p><strong>CVS:</strong> S1, S2 heard, normal regular rhythm.</p>
-                  <p><strong>P/A:</strong> Soft, non-tender, no organomegaly.</p>
-                  <p><strong>CNS:</strong> Conscious, oriented.</p>
-                </div>
-              </div>
-
-              {/* 5. Provisional / Clinical Diagnosis */}
+              {/* 4. Provisional / Clinical Diagnosis */}
               <div className="bg-slate-100 border border-slate-300 p-1.5 rounded">
                 <h3 className="font-black text-slate-900 text-[10px] uppercase tracking-wide mb-0.5">
-                  5. Provisional Diagnosis:
+                  4. Clinical Diagnosis:
                 </h3>
                 <p className="text-slate-950 font-bold text-[10.5px] pl-1 leading-snug">
-                  {record?.diagnosis || "Clinical Evaluation / Under Treatment"}
+                  {record?.diagnosis || "Clinical Diagnosis Pending Further Evaluation"}
                 </p>
               </div>
 
-              {/* 6. Recommended Investigations / Lab Tests */}
+              {/* 5. Treatment Plan */}
               <div>
-                <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-1">
-                  6. Suggested Investigations:
+                <h3 className="font-bold text-slate-900 text-[10px] uppercase tracking-wide border-b border-slate-300 pb-0.5 mb-0.5">
+                  5. Clinical Plan / Treatment:
                 </h3>
-                <div className="border border-slate-300 text-[9.5px]">
-                  <table className="w-full text-left">
-                    <tbody>
-                      <tr className="border-b border-slate-200">
-                        <td className="p-0.5 border-r border-slate-200 w-5 text-center">✓</td>
-                        <td className="p-0.5 font-medium">Complete Blood Count (CBC, ESR)</td>
-                      </tr>
-                      <tr className="border-b border-slate-200">
-                        <td className="p-0.5 border-r border-slate-200 w-5 text-center">✓</td>
-                        <td className="p-0.5 font-medium">Liver Function Test (LFT) / KFT</td>
-                      </tr>
-                      <tr className="border-b border-slate-200">
-                        <td className="p-0.5 border-r border-slate-200 w-5 text-center">✓</td>
-                        <td className="p-0.5 font-medium">Fasting & PP Blood Sugar / HbA1c</td>
-                      </tr>
-                      <tr>
-                        <td className="p-0.5 border-r border-slate-200 w-5 text-center">✓</td>
-                        <td className="p-0.5 font-medium">ECG 12-Lead / Chest X-Ray PA View</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                <p className="text-slate-800 pl-1 text-[10px] leading-snug whitespace-pre-wrap">
+                  {record?.treatment || "Administer pharmacological therapy as detailed in prescription plan."}
+                </p>
               </div>
 
               {/* Appointment / Next Visit Stamp Box */}
               <div className="border-2 border-dashed border-slate-800 p-1.5 text-center bg-white">
                 <p className="text-[9px] font-black uppercase tracking-wider text-slate-900 leading-tight">
-                  APPOINTMENT & FOLLOW-UP
+                  NEXT FOLLOW-UP APPOINTMENT
                 </p>
                 <p className="text-[11px] font-black text-primary print:text-black my-0.5 leading-tight">
                   {record?.followUpDate
                     ? format(new Date(record.followUpDate), "dd MMMM yyyy")
-                    : "After 10 - 14 Days / SOS"}
+                    : "SOS / As Advised by Physician"}
                 </p>
                 <p className="text-[8.5px] font-bold text-slate-600 leading-tight">
-                  Helpline: (033) 7125 6666 (8:00 AM - 8:00 PM)
+                  Hospital Helpdesk: (033) 7125 6666
                 </p>
               </div>
 
@@ -402,28 +353,28 @@ export default function PrescriptionDetailPage() {
             <div className="md:col-span-7 p-3 sm:p-4 flex flex-col justify-between space-y-4 print:p-2.5 print:space-y-2">
               
               <div className="space-y-3">
-                {/* 8. Diet / General Advice */}
+                {/* 6. Diet & General Advice */}
                 <div className="border-b border-slate-200 pb-2">
                   <h3 className="font-black text-slate-900 text-[10.5px] uppercase tracking-wide mb-0.5">
-                    8. Diet / General Advice:
+                    6. Diet & General Advice:
                   </h3>
                   <p className="text-[10px] text-slate-800 font-medium pl-1 leading-snug">
-                    {prescription.instructions || record?.doctorNotes || "Take light, easily digestible nutritious diet. Drink 2.5 - 3 Litres of clean water daily. Avoid spicy and oily foods. Adequate bed rest and avoid strenuous physical exertion."}
+                    {prescription.instructions || record?.doctorNotes || "Follow prescribed dosage and maintain proper hydration. Contact hospital if symptoms persist."}
                   </p>
                 </div>
 
-                {/* 9. Treatment Advice (Rx) */}
+                {/* 7. Treatment Advice (Rx) */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="font-serif text-3xl font-black italic text-slate-900 leading-none">
                       ℞
                     </span>
                     <h3 className="font-black text-slate-900 text-xs uppercase tracking-wider">
-                      9. Treatment Advice / Prescribed Medications:
+                      7. Prescribed Medications:
                     </h3>
                   </div>
 
-                  {/* Numbered Prescription Medicine Items */}
+                  {/* Numbered Prescription Medicine Items (Real Doctor Prescribed Items) */}
                   <div className="space-y-2 pl-1.5">
                     {prescription.items && prescription.items.length > 0 ? (
                       prescription.items.map((item, idx) => (
@@ -452,7 +403,7 @@ export default function PrescriptionDetailPage() {
 
                           {item.instructions && (
                             <p className="text-[10px] italic text-slate-600 pl-3">
-                              <strong>Note:</strong> {item.instructions}
+                              <strong>Instructions:</strong> {item.instructions}
                             </p>
                           )}
                         </div>
